@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo"
+    tools:context=".RegisterActivity">
+
+
+    <Button
+        android:id="@+id/back_buttonLogin"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/back_button"
+        app:backgroundTint="@color/boton_background"
+        android:text="@string/Flecha"
+        android:textSize="45sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:padding="0dp"
+        android:includeFontPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+    <!-- Nombre -->
+
+    <TextView
+        android:id="@+id/textName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="168dp"
+        android:layout_marginTop="44dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Nombre"
+        android:textColor="@color/white"
+        android:textSize="60px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Apellidos -->
+
+    <EditText
+        android:id="@+id/NameBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edittext_diseno"
+        android:gravity="center"
+        android:hint="Jaziel Alan"
+        android:inputType="text"
+        android:padding="4dp"
+        android:textAlignment="center"
+        android:textColorHint="@color/white"
+        android:ems="11"
+        android:textSize="0.11in"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textName" />
+
+    <TextView
+        android:id="@+id/textLastName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Apellidos"
+        android:textColor="@color/white"
+        android:textSize="60px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/NameBox" />
+
+    <!-- Contraseña -->
+
+    <EditText
+        android:id="@+id/LastNameBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:background="@drawable/edittext_diseno"
+        android:gravity="center"
+        android:hint="Balderas Escobedo"
+        android:inputType="text"
+        android:padding="4dp"
+        android:textAlignment="center"
+        android:textColorHint="@color/white"
+        android:ems="11"
+        android:textSize="0.11in"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textLastName" />
+
+    <TextView
+        android:id="@+id/textPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="152dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Contraseña"
+        android:textColor="@color/white"
+        android:textSize="60px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/LastNameBox" />
+
+    <!-- Correo -->
+
+    <EditText
+        android:id="@+id/PasswordBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edittext_diseno"
+        android:gravity="center"
+        android:hint="****"
+        android:inputType="text"
+        android:padding="4dp"
+        android:textAlignment="center"
+        android:textColorHint="@color/white"
+        android:ems="11"
+        android:textSize="0.11in"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textPassword" />
+
+    <TextView
+        android:id="@+id/textMail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="172dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Correo"
+        android:textColor="@color/white"
+        android:textSize="60px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/PasswordBox" />
+
+    <!-- TELEFONO-->
+
+    <EditText
+        android:id="@+id/MailBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edittext_diseno"
+        android:gravity="center"
+        android:hint="jaziel@gmail.com"
+        android:inputType="text"
+        android:padding="4dp"
+        android:textAlignment="center"
+        android:textColorHint="@color/white"
+        android:ems="11"
+        android:textSize="0.11in"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textMail" />
+
+    <TextView
+        android:id="@+id/textPhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="164dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Telefono"
+        android:textColor="@color/white"
+        android:textSize="60px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/MailBox" />
+
+    <!-- DIRECCION -->
+
+    <EditText
+        android:id="@+id/PhoneBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edittext_diseno"
+        android:gravity="center"
+        android:hint="8124908230"
+        android:inputType="text"
+        android:padding="4dp"
+        android:textAlignment="center"
+        android:textColorHint="@color/white"
+        android:ems="11"
+        android:textSize="0.11in"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textPhone" />
+
+    <TextView
+        android:id="@+id/textDireccion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Direccion"
+        android:textColor="@color/white"
+        android:textSize="60px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/PhoneBox" />
+
+    <!-- ALIAS -->
+
+    <EditText
+        android:id="@+id/AddressBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/edittext_diseno"
+        android:gravity="center"
+        android:hint="Juventud 415 Mty NL"
+        android:inputType="text"
+        android:padding="4dp"
+        android:textAlignment="center"
+        android:textColorHint="@color/white"
+        android:ems="11"
+        android:textSize="0.11in"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textDireccion" />
+
+    <TextView
+        android:id="@+id/textNickName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="180dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Alias"
+        android:textColor="@color/white"
+        android:textSize="60px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/AddressBox" />
+
+    <EditText
+        android:id="@+id/NickNameBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/edittext_diseno"
+        android:gravity="center"
+        android:hint="Jazz07"
+        android:inputType="text"
+        android:padding="4dp"
+        android:textAlignment="center"
+        android:textColorHint="@color/white"
+        android:ems="11"
+        android:textSize="0.11in"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textNickName" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
