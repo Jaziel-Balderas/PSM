@@ -9,23 +9,24 @@
     tools:context=".RegisterActivity">
 
 
+    <!-- Nombre -->
+
     <Button
         android:id="@+id/back_buttonLogin"
         android:layout_width="60dp"
         android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/back_button"
-        app:backgroundTint="@color/boton_background"
-        android:text="@string/Flecha"
-        android:textSize="45sp"
-        android:textColor="@color/black"
         android:gravity="center"
-        android:padding="0dp"
         android:includeFontPadding="false"
-        app:layout_constraintTop_toTopOf="parent"
+        android:padding="0dp"
+        android:text="@string/Flecha"
+        android:textColor="@color/black"
+        android:textSize="45sp"
+        app:backgroundTint="@color/boton_background"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp" />
-    <!-- Nombre -->
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textName"
