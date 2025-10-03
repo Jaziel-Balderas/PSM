@@ -106,19 +106,20 @@
 
     <Button
         android:id="@+id/back_buttonLogin"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/back_button"
         app:backgroundTint="@color/boton_background"
         android:text="@string/Flecha"
-        android:textSize="45sp"
+        android:textSize="30sp"
         android:textColor="@color/black"
         android:gravity="center"
         android:padding="0dp"
         android:includeFontPadding="false"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
+
         android:layout_marginStart="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
