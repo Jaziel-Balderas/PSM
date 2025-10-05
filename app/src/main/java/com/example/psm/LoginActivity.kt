@@ -28,11 +28,11 @@ class LoginActivity : AppCompatActivity(){
             startActivity(intent)
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
-        btnBack.setOnClickListener {
+        btnLogg.setOnClickListener {
             val intent: Intent = Intent(this, DashboardActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
-        
+
     }
 }
