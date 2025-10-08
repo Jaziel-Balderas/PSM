@@ -35,6 +35,7 @@ class DashboardActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             goToFragment(dashlayout())
         }
+
     }
 
     private fun goToFragment(fragment: Fragment) {
