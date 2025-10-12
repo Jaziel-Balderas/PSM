@@ -98,10 +98,10 @@
             android:background="@drawable/edittext_diseno"
             android:hint="Balderas Escobedo"
             android:inputType="textPersonName|textCapWords"
+            android:nextFocusDown="@id/PasswordBox"
             android:padding="12dp"
             android:textColorHint="#99FFFFFF"
-            android:textSize="16sp"
-            android:nextFocusDown="@id/PasswordBox" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/textPassword"
