@@ -16,32 +16,38 @@
         android:paddingTop="16dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/back_buttonLoginReg"
+
+        <ImageButton
+            android:id="@+id/back_notis"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="16dp"
             android:background="@drawable/iconsbg"
-            android:gravity="center"
-            android:text="@string/Flecha"
-            android:textColor="@color/black"
-            android:textSize="30sp"
+            android:contentDescription="@string/back_button"
+            android:paddingLeft="12dp"
+            android:src="@drawable/back"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintVertical_bias="0.0" />
+
 
         <TextView
             android:id="@+id/titleFrag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
             android:fontFamily="sans-serif-condensed"
             android:text="ConectaFan ♫"
             android:textColor="@color/black"
             android:textSize="40sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/back_buttonLoginReg"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="28dp" /> </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintBottom_toBottomOf="@id/back_notis"
+            app:layout_constraintStart_toEndOf="@id/back_notis"
+            app:layout_constraintTop_toTopOf="@id/back_notis"
+            app:layout_constraintVertical_bias="1.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     ---
 
@@ -59,6 +65,19 @@
             android:orientation="vertical"
             android:paddingHorizontal="24dp"
             android:paddingBottom="40dp">
+
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:src="@drawable/default_profile"   <!-- tu imagen predeterminada -->
+            android:scaleType="centerCrop"
+            android:background="@drawable/profile_circle_bg"
+            android:contentDescription="Imagen de perfil"
+            android:clipToOutline="true" />
+
 
             <TextView
                 android:id="@+id/textName"
