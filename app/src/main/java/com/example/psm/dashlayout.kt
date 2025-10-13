@@ -26,7 +26,7 @@ class dashlayout : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val btnSett = view.findViewById<ImageButton>(R.id.btn_fragment_options)
+        val btnSett = view.findViewById<ImageButton>(R.id.btnSettings)
 
         btnSett?.setOnClickListener{
             val intent = Intent(requireContext(), RegisterActivity::class.java)
