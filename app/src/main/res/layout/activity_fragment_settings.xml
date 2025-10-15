@@ -33,10 +33,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <Button
         android:id="@+id/btnBorradores"
         android:layout_width="169dp"
         android:layout_height="61dp"
+        android:layout_marginStart="76dp"
+        android:layout_marginTop="100dp"
         android:gravity="left|center_vertical"
         android:paddingVertical="14dp"
         android:text="Borradores"
@@ -44,14 +47,15 @@
         android:textSize="20sp"
         android:textStyle="bold"
         app:backgroundTint="@color/boton_background"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="99dp" />
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnPrivacidadCuenta"
         android:layout_width="324dp"
         android:layout_height="58dp"
+        android:layout_marginStart="76dp"
+        android:layout_marginTop="176dp"
         android:gravity="left|center_vertical"
         android:paddingVertical="14dp"
         android:text="Privacidad de la cuenta"
@@ -59,13 +63,15 @@
         android:textSize="20sp"
         android:textStyle="bold"
         app:backgroundTint="@color/boton_background"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="176dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnGuardado"
         android:layout_width="324dp"
         android:layout_height="58dp"
+        android:layout_marginStart="76dp"
+        android:layout_marginTop="252dp"
         android:gravity="left|center_vertical"
         android:paddingVertical="14dp"
         android:text="Guardado"
@@ -73,13 +79,15 @@
         android:textSize="20sp"
         android:textStyle="bold"
         app:backgroundTint="@color/boton_background"
-        tools:layout_editor_absoluteX="71dp"
-        tools:layout_editor_absoluteY="254dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnModoClaroOscuro"
         android:layout_width="223dp"
         android:layout_height="58dp"
+        android:layout_marginStart="76dp"
+        android:layout_marginTop="336dp"
         android:gravity="left|center_vertical"
         android:paddingVertical="14dp"
         android:text="Modo claro/oscuro"
@@ -87,8 +95,8 @@
         android:textSize="20sp"
         android:textStyle="bold"
         app:backgroundTint="@color/boton_background"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="336dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/imageButton"
@@ -101,7 +109,8 @@
         app:layout_constraintHorizontal_bias="0.084"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/guardar"
-        tools:layout_editor_absoluteY="265dp" />
+        tools:layout_editor_absoluteY="265dp"
+        tools:ignore="MissingConstraints" />
 
     <ImageButton
         android:id="@+id/imageButton2"
@@ -149,20 +158,24 @@
         android:id="@+id/switch1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="312dp"
+        android:layout_marginTop="356dp"
         android:text=""
-        tools:layout_editor_absoluteX="297dp"
-        tools:layout_editor_absoluteY="352dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/horizontal_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="424dp"
         android:background="#000000"
         android:contentDescription="Línea divisoria"
         android:src="@drawable/linea"
-        tools:layout_editor_absoluteX="24dp"
-        tools:layout_editor_absoluteY="435dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
