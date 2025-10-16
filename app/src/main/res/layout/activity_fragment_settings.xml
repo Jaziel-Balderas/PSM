@@ -102,15 +102,15 @@
         android:id="@+id/imageButton"
         android:layout_width="45dp"
         android:layout_height="39dp"
+        android:layout_marginStart="28dp"
         android:adjustViewBounds="true"
         android:background="@android:color/transparent"
         android:scaleType="fitCenter"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.084"
+        app:layout_constraintBottom_toBottomOf="@+id/btnGuardado"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/guardar"
-        tools:layout_editor_absoluteY="265dp"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintTop_toTopOf="@+id/btnGuardado"
+        app:layout_constraintVertical_bias="0.444"
+        app:srcCompat="@drawable/guardar" />
 
     <ImageButton
         android:id="@+id/imageButton2"
@@ -179,15 +179,22 @@
 
     <Button
         android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="676dp"
+        android:layout_width="176dp"
+        android:layout_height="53dp"
 
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/iconsbg"
+        android:paddingHorizontal="3dp"
         android:text="Cerrar sesión"
+
         android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:backgroundTint="@null"
+
+        app:cornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.523"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

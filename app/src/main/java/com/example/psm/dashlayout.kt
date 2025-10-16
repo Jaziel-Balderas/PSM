@@ -29,7 +29,7 @@ class dashlayout : Fragment() {
         val btnSett = view.findViewById<ImageButton>(R.id.btnSettings)
 
         btnSett?.setOnClickListener{
-            val intent = Intent(requireContext(), RegisterActivity::class.java)
+            val intent = Intent(requireContext(), fragment_settings::class.java)
             startActivity(intent)
         }
     }
