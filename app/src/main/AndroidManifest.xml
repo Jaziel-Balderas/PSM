@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PSM">
         <activity
+            android:name=".publicar"
+            android:exported="false" />
+        <activity
             android:name=".privacidad"
             android:exported="false" />
         <activity
