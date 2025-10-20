@@ -1,293 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".ProfileLayout">
 
-    tools:context=".RegisterActivity">
+    <!-- 📸 Imagen de portada -->
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/headerLayout"
-        android:layout_width="match_parent"
+    <!-- ✏️ Botón para editar perfil -->
+    <ImageView
+        android:id="@+id/portada"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/portadaudi"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btnEditarPerfil"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="16dp"
+        android:background="@android:color/white"
+        android:src="@drawable/borrador"
+        android:scaleType="fitCenter"
+        android:contentDescription="Editar perfil"
+        app:layout_constraintTop_toTopOf="@id/portada"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 🧑 Foto de perfil (circular, superpuesta sobre la portada) -->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/fotoPerfil"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:src="@drawable/perfilejemplo"
+        app:civ_border_width="2dp"
+        app:civ_border_color="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/portada"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="-55dp" />
+
+    <!-- 🧾 Nombre de usuario -->
+    <TextView
+        android:id="@+id/txtNombreUsuario"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="24dp"
-        android:paddingTop="16dp"
-        app:layout_constraintTop_toTopOf="parent">
+        android:text="Jaziel Balderas"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/fotoPerfil"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
 
-        <TextView
-            android:id="@+id/titleFrag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+    <!-- 💬 Descripción corta o biografía -->
 
-            android:fontFamily="sans-serif-condensed"
-            android:text="ConectaFan ♫"
-            android:textColor="@color/black"
-            android:textSize="40sp"
-            android:textStyle="bold"
+    <!-- 🔘 Barra de iconos: publicaciones, guardados, likes -->
+    <LinearLayout
+        android:id="@+id/layoutOpciones"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="330dp">
 
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+    </LinearLayout>
 
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            tools:ignore="NotSibling" />
-
-        <ImageButton
-            android:id="@+id/back_notis"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/iconsbg"
-            android:src="@drawable/back"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:paddingLeft="12dp"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    ---
-
+    <!-- 🧱 Sección donde aparecerán las publicaciones -->
     <ScrollView
-        android:id="@+id/scrollContent"
-        android:layout_width="match_parent"
+        android:id="@+id/scrollPosts"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@+id/headerLayout"
-        app:layout_constraintBottom_toTopOf="@+id/bottomBar">
+        app:layout_constraintTop_toBottomOf="@id/layoutOpciones"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
+            android:id="@+id/contenedorPosts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="24dp"
-            android:paddingBottom="40dp">
+            android:padding="8dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="24dp">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/profile_image"
-                    android:layout_width="96dp"
-                    android:layout_height="96dp"
-                    android:src="@drawable/profile"
-                    app:civ_border_width="2dp"
-                    app:civ_border_color="#FF000000"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-                <ImageButton
-                    android:id="@+id/edit_image_button"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="@android:color/transparent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/borrador"
-                    app:layout_constraintEnd_toEndOf="@id/profile_image"
-                    app:layout_constraintBottom_toBottomOf="@id/profile_image" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
+            <!-- Aquí podrías agregar tus posts dinámicamente -->
             <TextView
-                android:id="@+id/textName"
-                style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Nombre"
-                android:textColor="@color/black" />
-
-            <EditText
-                android:id="@+id/NameBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/edittext_diseno"
-                android:backgroundTint="#000000"
-                android:hint="Jaziel Alan"
-                android:inputType="textPersonName|textCapWords"
-                android:padding="12dp"
-                android:textColorHint="#99000000"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/textLastName"
-                style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Apellidos"
-                android:textColor="@color/black" />
-
-            <EditText
-                android:id="@+id/LastNameBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/edittext_diseno"
-                android:backgroundTint="#000000"
-                android:hint="Balderas Escobedo"
-                android:inputType="textPersonName|textCapWords"
-                android:padding="12dp"
-                android:textColorHint="#990B0B0B"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/textPassword"
-                style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Contraseña"
-                android:textColor="@color/black" />
-
-            <EditText
-                android:id="@+id/PasswordBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/edittext_diseno"
-                android:backgroundTint="#000000"
-                android:hint="Mínimo 8 caracteres"
-                android:inputType="textPassword"
-                android:padding="12dp"
-                android:textColorHint="#99000000"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/textMail"
-                style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Correo Electrónico"
-                android:textColor="@color/black" />
-
-            <EditText
-                android:id="@+id/MailBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/edittext_diseno"
-                android:backgroundTint="#000000"
-                android:hint="ejemplo@dominio.com"
-                android:inputType="textEmailAddress"
-                android:padding="12dp"
-                android:textColorHint="#99000000"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/textPhone"
-                style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Teléfono"
-                android:textColor="@color/black" />
-
-            <EditText
-                android:id="@+id/PhoneBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/edittext_diseno"
-                android:backgroundTint="#000000"
-                android:hint="81 0000 0000"
-                android:inputType="phone"
-                android:padding="12dp"
-                android:textColorHint="#99050505"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/textDireccion"
-                style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Direcciónnn"
-                android:textColor="@color/black" />
-
-            <EditText
-                android:id="@+id/AddressBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/edittext_diseno"
-                android:backgroundTint="#040404"
-                android:hint="Calle, número, colonia"
-                android:inputType="textPostalAddress"
-                android:padding="12dp"
-                android:textColorHint="#99000000"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/textNickName"
-                style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Alias (Nombre de Usuario)"
-                android:textColor="@color/black" />
-
-            <EditText
-                android:id="@+id/NickNameBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/edittext_diseno"
-                android:backgroundTint="#000000"
-                android:hint="Jazz07"
-                android:imeOptions="actionDone"
-                android:inputType="text"
-                android:padding="12dp"
-                android:textColorHint="#99000000"
-                android:textSize="16sp" />
-
+                android:text="Aquí se mostrarán las publicaciones del usuario..."
+                android:textSize="16sp"
+                android:gravity="center"
+                android:padding="16dp"/>
         </LinearLayout>
     </ScrollView>
-
-    ---
-
-    <LinearLayout
-        android:id="@+id/bottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:orientation="horizontal"
-        android:gravity="center"
-
-        android:paddingHorizontal="32dp"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <ImageButton
-            android:id="@+id/btnMenu"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/iconsbg"
-            android:src="@drawable/baseline_home_24"
-            android:contentDescription="Inicio" />
-
-        <ImageButton
-            android:id="@+id/btnNotis"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginHorizontal="60dp"
-            android:background="@drawable/iconsbg"
-            android:src="@drawable/notifications_24dp_e3e3e3_fill0_wght400_grad0_opsz24"
-            android:contentDescription="Notificaciones" />
-
-        <ImageButton
-            android:id="@+id/btnProfile"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/iconsbg"
-            android:src="@drawable/profile"
-            android:contentDescription="Perfil" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

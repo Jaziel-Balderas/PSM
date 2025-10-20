@@ -10,15 +10,6 @@
     android:paddingTop="16dp"
     tools:context=".dashlayout">
 
-    <ImageButton
-        android:id="@+id/back_notis"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/iconsbg"
-        android:src="@drawable/back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:paddingLeft="12dp"/>
 
     <ScrollView
         android:id="@+id/sv_dashboard_content"
@@ -26,15 +17,17 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/back_notis">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="¡Este es el contenido dinámico del Dashboard! Desplázate hacia abajo."
-            android:textSize="18sp" />
+            android:text="Notificaciones"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textSize="24sp" />
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

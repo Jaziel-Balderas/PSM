@@ -15,42 +15,52 @@ import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        // Configura la ventana para pantalla completa
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
         setContentView(R.layout.activity_main)
+
+        // Manejo de barras del sistema (para enableEdgeToEdge)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
+        // Carga las animaciones
         val FI: Animation = AnimationUtils.loadAnimation(this, R.anim.animarriba)
         val FO: Animation = AnimationUtils.loadAnimation(this, R.anim.animbajo)
-        val mainLayout = findViewById<android.view.View>(R.id.main)
 
+        // Obtiene referencias a las vistas
         val textTitle: TextView = findViewById(R.id.Title)
         val textSubtitle: TextView = findViewById(R.id.subtitle)
+        val btnRegistro: Button = findViewById(R.id.buttonRegistro)
+        val btnLogin: Button = findViewById(R.id.buttonLogin)
 
-        val btn: Button = findViewById(R.id.buttonRegistro)
-        btn.setOnClickListener {
+        // **CORRECCIÓN CLAVE:** Inicia la animación en las vistas
+        textTitle.startAnimation(FO)
+        textSubtitle.startAnimation(FO)
+        btnRegistro.startAnimation(FI)
+        btnLogin.startAnimation(FI)
+
+
+        // Configura el Listener para el botón de Registro
+        btnRegistro.setOnClickListener {
             val intent: Intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
-        val btnLogin: Button = findViewById(R.id.buttonLogin)
+        // Configura el Listener para el botón de Login
         btnLogin.setOnClickListener {
             val intent: Intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
-        textTitle.setAnimation(FO);
-        textSubtitle.setAnimation(FO);
-        btn.setAnimation(FI);
-        btnLogin.setAnimation(FI);
-
     }
 }

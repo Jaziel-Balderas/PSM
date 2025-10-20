@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".RegisterActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/back_buttonLoginReg"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/iconsbg"
+            android:paddingLeft="12dp"
+            android:src="@drawable/back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/titleFrag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="ConectaFan ♫"
+            android:textColor="@color/black"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/back_buttonLoginReg"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="28dp" /> </androidx.constraintlayout.widget.ConstraintLayout>
+
+    ---
+
+    <ScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+        app:layout_constraintBottom_toTopOf="@+id/bottomBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="40dp">
+
+            <TextView
+                android:id="@+id/textName"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Nombre"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/NameBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:backgroundTint="#000000"
+                android:hint="Jaziel Alan"
+                android:inputType="textPersonName|textCapWords"
+                android:padding="12dp"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textLastName"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Apellidos"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/LastNameBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:backgroundTint="#000000"
+                android:hint="Balderas Escobedo"
+                android:inputType="textPersonName|textCapWords"
+                android:padding="12dp"
+                android:textColorHint="#990B0B0B"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textPassword"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Contraseña"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/PasswordBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:backgroundTint="#000000"
+                android:hint="Mínimo 8 caracteres"
+                android:inputType="textPassword"
+                android:padding="12dp"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textMail"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Correo Electrónico"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/MailBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:backgroundTint="#000000"
+                android:hint="ejemplo@dominio.com"
+                android:inputType="textEmailAddress"
+                android:padding="12dp"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textPhone"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Teléfono"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/PhoneBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:backgroundTint="#000000"
+                android:hint="81 0000 0000"
+                android:inputType="phone"
+                android:padding="12dp"
+                android:textColorHint="#99050505"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textDireccion"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Direcciónnn"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/AddressBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:backgroundTint="#040404"
+                android:hint="Calle, número, colonia"
+                android:inputType="textPostalAddress"
+                android:padding="12dp"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textNickName"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Alias (Nombre de Usuario)"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/NickNameBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:backgroundTint="#000000"
+                android:hint="Jazz07"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:padding="12dp"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/register_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:paddingVertical="14dp"
+                android:text="CONFIRMAR"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:visibility="invisible"
+                app:backgroundTint="@color/boton_background" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

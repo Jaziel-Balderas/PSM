@@ -24,8 +24,12 @@ class ProfileLayout : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val btnSett = view.findViewById<ImageButton>(R.id.btnSettings)
-
+        val btnEdit = view.findViewById<ImageButton>(R.id.btnEditarPerfil)
         btnSett?.setOnClickListener{
+            val intent = Intent(requireContext(), RegisterActivity::class.java)
+            startActivity(intent)
+        }
+        btnEdit?.setOnClickListener{
             val intent = Intent(requireContext(), RegisterActivity::class.java)
             startActivity(intent)
         }
