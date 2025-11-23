@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -10,27 +10,29 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PSM">
+        android:theme="@style/Theme.PSM"
+        android:usesCleartextTraffic="true">
+
         <activity
-            android:name=".publicar"
+            android:name=".UI.Fragments.publicar"
             android:exported="false" />
         <activity
-            android:name=".privacidad"
+            android:name=".UI.Fragments.privacidad"
             android:exported="false" />
         <activity
-            android:name=".fragment_settings"
+            android:name=".UI.Fragments.fragment_settings"
             android:exported="false" />
         <activity
-            android:name=".DashboardActivity"
+            android:name=".UI.Activity.DashboardActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".UI.Activity.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".UI.Activity.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".UI.Activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

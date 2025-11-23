@@ -1,4 +1,4 @@
-package com.example.psm
+package com.example.psm.UI.Activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.view.animation.AnimationUtils
 import android.widget.TextView
+import com.example.psm.R
 
 
 class MainActivity : AppCompatActivity() {

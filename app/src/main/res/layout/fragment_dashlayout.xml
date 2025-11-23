@@ -8,7 +8,7 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:paddingTop="16dp"
-    tools:context=".dashlayout">
+    tools:context=".UI.Fragments.dashlayout">
 
     <TextView
         android:id="@+id/titleFrag"

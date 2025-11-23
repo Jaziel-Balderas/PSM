@@ -1,38 +1,31 @@
-package com.example.psm
+package com.example.psm.UI.Fragments
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.psm.R
 
-class LoginActivity : AppCompatActivity(){
+class privacidad : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.login)
+        setContentView(R.layout.activity_privacidad)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val btnBack: Button = findViewById(R.id.back_buttonLogin)
-        val btnLogg: Button = findViewById(R.id.buttonLog)
-
+        val btnBack = findViewById<ImageButton>(R.id.back_priv)
         btnBack.setOnClickListener {
-            val intent: Intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, fragment_settings::class.java)
             startActivity(intent)
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
-        btnLogg.setOnClickListener {
-            val intent: Intent = Intent(this, DashboardActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        }
-
     }
 }

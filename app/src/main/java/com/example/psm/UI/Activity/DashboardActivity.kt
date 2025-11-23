@@ -1,4 +1,4 @@
-package com.example.psm
+package com.example.psm.UI.Activity
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -6,7 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import com.example.psm.UI.Fragments.NotiLayout
+import com.example.psm.UI.Fragments.ProfileLayout
+import com.example.psm.R
+import com.example.psm.UI.Fragments.dashlayout
 import com.example.psm.databinding.ActivityDashboardBinding
 
 class DashboardActivity : AppCompatActivity() {

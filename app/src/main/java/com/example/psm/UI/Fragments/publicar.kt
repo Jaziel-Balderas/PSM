@@ -1,10 +1,11 @@
-package com.example.psm
+package com.example.psm.UI.Fragments
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.psm.R
 
 class publicar : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

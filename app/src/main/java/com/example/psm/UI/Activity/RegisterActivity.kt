@@ -1,4 +1,4 @@
-package com.example.psm
+package com.example.psm.UI.Activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.psm.R
 import de.hdodenhof.circleimageview.CircleImageView
 
 class RegisterActivity : AppCompatActivity() {

@@ -51,4 +51,15 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("androidx.cardview:cardview:1.0.0")
 
+    // Retrofit (Cliente HTTP para la API REST)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Converter de Gson (Para convertir JSON de la API a tus clases de Kotlin/Data Models)
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // Kotlin Coroutines (Para manejar las llamadas a la red de forma asíncrona)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    // Lifecycle components (Para usar ViewModels y LiveData correctamente)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+
 }
