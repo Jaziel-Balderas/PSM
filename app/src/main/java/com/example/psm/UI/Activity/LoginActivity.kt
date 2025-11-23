@@ -79,14 +79,3 @@ class LoginActivity : AppCompatActivity(){
 
     }
 }
-
-class AuthViewModelFactory(private val repository: UserRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-
-        if (modelClass.isAssignableFrom(AuthVIewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return AuthVIewModel(repository) as T // Y aquí también
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}

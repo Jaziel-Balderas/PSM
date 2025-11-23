@@ -10,7 +10,7 @@ object AppModule {
     // 2. Provee el Singleton de Retrofit
     // Esta instancia se crea una sola vez cuando se accede por primera vez.
     val tolerantGson = GsonBuilder()
-        .setLenient() // <--- ESTA ES LA CLAVE
+        .setLenient()
         .create()
     val retrofitInstance: Retrofit by lazy {
         Retrofit.Builder()

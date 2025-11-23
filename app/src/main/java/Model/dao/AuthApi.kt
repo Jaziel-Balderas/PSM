@@ -10,6 +10,6 @@ interface AuthApi {
     @POST("auth.php")
     suspend fun loginUser(@Body loginRequest: LoginRequest): AuthResponse
 
-    @POST("users/register")
+    @POST("register.php")
     suspend fun registerUser(@Body registerRequest: RegisterRequest): AuthResponse
 }
