@@ -106,7 +106,6 @@ class ProfileLayout : Fragment() {
             Log.d("ProfileLayout", "Observer triggered: user=${user != null}")
             
             if (user != null) {
-                // El Observer actualiza la View
                 txtNombreUsuario.text = "${user.nameuser} ${user.lastnames}"
 
                 Log.d("ProfileLayout", "User from server: ${user.nameuser}, hasImage: ${!user.profile_image_url.isNullOrEmpty()}")
