@@ -84,12 +84,13 @@ class PostsAdapter(
         }
         
         // ViewPager para imágenes (base64)
-        val mediaAdapter = PostMediaAdapter(post.imageUrls)
+        val mediaAdapter = PostMediaAdapter(post.images.map { it.base64 })
         holder.vpPostMedia.adapter = mediaAdapter
         
-        // Likes
-        holder.tvLikeCount.text = post.likeCount.toString()
-        updateLikeButton(holder.btnLike, post.isLiked)
+        // Likes (solo conteo positivo de likes)
+        holder.tvLikeCount.text = post.likesCount.toString()
+        val liked = post.userVote == 1
+        updateLikeButton(holder.btnLike, liked)
         
         holder.btnLike.setOnClickListener {
             onLikeClick(post, position)
@@ -109,10 +110,10 @@ class PostsAdapter(
         notifyDataSetChanged()
     }
     
-    fun updatePostLike(position: Int, isLiked: Boolean, likeCount: Int) {
+    fun updatePostVote(position: Int, userVote: Int?, likesCount: Int, dislikesCount: Int) {
         if (position in posts.indices) {
-            posts[position].isLiked = isLiked
-            posts[position].likeCount = likeCount
+            val current = posts[position]
+            posts[position] = current.copy(userVote = userVote, likesCount = likesCount, dislikesCount = dislikesCount)
             notifyItemChanged(position)
         }
     }

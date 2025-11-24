@@ -3,8 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".PSMApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -16,6 +18,9 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".UI.Activity.EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UI.Activity.DraftsActivity"
             android:exported="false" />
         <activity android:name=".UI.Fragments.EditProfile" />
         <activity

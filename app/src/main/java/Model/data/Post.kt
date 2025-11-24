@@ -5,15 +5,17 @@ data class Post(
     val userId: String,
     val username: String? = null,
     val title: String,
-    val description: String,
+    val description: String, // maps to DB 'content'
     val location: String? = null,
-    val imageUrls: List<String> = emptyList(), // Ahora son base64 strings
+    val images: List<PostImage> = emptyList(), // multi-image support
     val isPublic: Boolean = true,
     val createdAt: String? = null,
-    val profileResId: Int? = null,
-    val profileImageBase64: String? = null, // Imagen de perfil en base64
-    var likeCount: Int = 0,
-    var isLiked: Boolean = false
+    val updatedAt: String? = null,
+    val profileImageBase64: String? = null,
+    val likesCount: Int = 0,
+    val dislikesCount: Int = 0,
+    val userVote: Int? = null, // 1 like, -1 dislike, null none
+    val commentsCount: Int = 0
 )
 
 data class PostResponse(
@@ -24,14 +26,35 @@ data class PostResponse(
 
 data class PostsResponse(
     val success: Boolean,
-    val message: String,
     val posts: List<Post>,
-    val count: Int
+    val count: Int,
+    val limit: Int? = null,
+    val offset: Int? = null,
+    val message: String? = null
 )
 
 data class UserInfo(
     val nameuser: String,
     val lastnames: String,
     val username: String,
-    val profileImageUrl: String?
+    val profileImageBase64: String?
+)
+
+data class PostImage(
+    val imageId: Int,
+    val description: String?,
+    val base64: String
+)
+
+data class VoteResponse(
+    val success: Boolean,
+    val message: String,
+    val post: VotePostData?
+)
+
+data class VotePostData(
+    val post_id: Int,
+    val likes_count: Int,
+    val dislikes_count: Int,
+    val user_vote: Int?
 )

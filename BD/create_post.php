@@ -1,84 +1,99 @@
 <?php
-header("Content-Type: application/json");
-error_reporting(E_ERROR | E_PARSE);
-ini_set('display_errors', 0);
-
+header('Content-Type: application/json');
 require_once 'DBConnection.php';
 
-$response = array("success" => false, "message" => "Error desconocido");
+function respond($arr){ echo json_encode($arr); exit(); }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $db = DBConnection::getInstance()->getConnection();
+// Support JSON and multipart form
+$raw = file_get_contents('php://input');
+$json = json_decode($raw, true);
+$isJson = is_array($json);
+$data = $isJson ? $json : $_POST;
 
-    // 1. Recibir datos de texto
-    $userId = isset($_POST['user_id']) ? $_POST['user_id'] : null;
-    $title = isset($_POST['title']) ? $_POST['title'] : "";
-    $description = isset($_POST['description']) ? $_POST['description'] : "";
-    $location = isset($_POST['location']) ? $_POST['location'] : "";
-    $isPublic = isset($_POST['is_public']) ? (int)$_POST['is_public'] : 1;
-
-    if ($userId && !empty($title)) {
-        // 2. Convertir imágenes a base64 para guardar en BLOB
-        $imagesBase64 = array();
-        
-        // Verificar si se enviaron múltiples archivos
-        if (isset($_FILES['images']) && is_array($_FILES['images']['name'])) {
-            $fileCount = count($_FILES['images']['name']);
-            
-            for ($i = 0; $i < $fileCount; $i++) {
-                // Verificar si este archivo específico no tiene errores
-                if ($_FILES['images']['error'][$i] === UPLOAD_ERR_OK) {
-                    // Leer el contenido del archivo
-                    $imageData = file_get_contents($_FILES['images']['tmp_name'][$i]);
-                    
-                    // Convertir a base64
-                    $base64Image = base64_encode($imageData);
-                    
-                    // Agregar al array
-                    $imagesBase64[] = $base64Image;
-                }
-            }
-            
-            if (empty($imagesBase64)) {
-                $response["message"] = "Error al procesar las imágenes.";
-                echo json_encode($response);
-                exit();
-            }
-        } else {
-            $response["message"] = "No se recibieron archivos.";
-            echo json_encode($response);
-            exit();
-        }
-
-        // 3. Convertir array de base64 a JSON para guardar en BLOB
-        $imagesJsonBlob = json_encode($imagesBase64);
-
-        // 4. Insertar en Base de Datos con BLOB
-        $stmt = $db->prepare("INSERT INTO posts (user_id, title, description, location, image_urls, is_public, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-        
-        if ($stmt) {
-            $stmt->bind_param("issssi", $userId, $title, $description, $location, $imagesJsonBlob, $isPublic);
-
-            if ($stmt->execute()) {
-                $postId = $stmt->insert_id;
-                $response["success"] = true;
-                $response["message"] = "Publicación creada exitosamente con BLOB";
-                $response["postId"] = (string)$postId;
-            } else {
-                $response["message"] = "Error al guardar en BD: " . $stmt->error;
-            }
-            $stmt->close();
-        } else {
-            $response["message"] = "Error en la consulta SQL: " . $db->error;
-        }
-
-    } else {
-        $response["message"] = "Faltan datos obligatorios (user_id o título).";
+// Debug logging
+error_log("==================== NEW REQUEST ====================");
+error_log("DEBUG create_post.php - isJson: " . ($isJson ? 'true' : 'false'));
+error_log("DEBUG create_post.php - Raw input length: " . strlen($raw));
+error_log("DEBUG create_post.php - Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'not set'));
+error_log("DEBUG create_post.php - Request Method: " . $_SERVER['REQUEST_METHOD']);
+error_log("DEBUG create_post.php - POST count: " . count($_POST));
+error_log("DEBUG create_post.php - POST keys: " . implode(', ', array_keys($_POST)));
+error_log("DEBUG create_post.php - POST full data: " . print_r($_POST, true));
+error_log("DEBUG create_post.php - FILES count: " . count($_FILES));
+error_log("DEBUG create_post.php - FILES keys: " . implode(', ', array_keys($_FILES)));
+if (!empty($_POST)) {
+    foreach ($_POST as $key => $value) {
+        error_log("  POST[$key] = " . (is_string($value) ? "'$value'" : json_encode($value)));
     }
+}
+error_log("====================================================");
 
-} else {
-    $response["message"] = "Método no permitido (Usa POST).";
+$userId = isset($data['user_id']) ? (int)$data['user_id'] : 0;
+$title = isset($data['title']) ? trim((string)$data['title']) : null;
+$content = isset($data['content']) ? trim((string)$data['content']) : '';
+$location = isset($data['location']) ? trim((string)$data['location']) : null;
+$isPublic = isset($data['is_public']) ? (int)$data['is_public'] : 1;
+
+if ($userId <= 0 || $content === '') {
+  respond(['success'=>false,'message'=>'user_id y content son requeridos']);
 }
 
-echo json_encode($response);
+try {
+  $conn = DBConnection::getInstance()->getConnection();
+  $conn->begin_transaction();
+
+  $stmt = $conn->prepare('INSERT INTO posts (user_id, title, content, location, is_public) VALUES (?,?,?,?,?)');
+  if (!$stmt) { throw new Exception('No se pudo preparar INSERT posts'); }
+  $stmt->bind_param('isssi', $userId, $title, $content, $location, $isPublic);
+  $stmt->execute();
+  $postId = $conn->insert_id;
+  $stmt->close();
+
+  $imagesInserted = 0;
+
+  // Handle images from multipart
+  if (!$isJson && isset($_FILES['images']) && is_array($_FILES['images']['tmp_name'])) {
+    $count = count($_FILES['images']['tmp_name']);
+    for ($i=0; $i<$count; $i++) {
+      if (is_uploaded_file($_FILES['images']['tmp_name'][$i])) {
+        $bin = file_get_contents($_FILES['images']['tmp_name'][$i]);
+        if ($bin !== false) {
+          $img = $conn->prepare('INSERT INTO post_images (post_id, image_data) VALUES (?,?)');
+          $null = null;
+          $img->bind_param('ib', $postId, $null);
+          $img->send_long_data(1, $bin);
+          $img->execute();
+          $img->close();
+          $imagesInserted++;
+        }
+      }
+    }
+  }
+
+  // Handle images from JSON base64 array
+  if ($isJson && isset($json['images_base64']) && is_array($json['images_base64'])) {
+    foreach ($json['images_base64'] as $b64) {
+      if (!is_string($b64) || $b64 === '') continue;
+      if (strpos($b64, ',') !== false) {
+        $parts = explode(',', $b64, 2);
+        $b64 = $parts[1];
+      }
+      $bin = base64_decode($b64, true);
+      if ($bin === false) continue;
+      $img = $conn->prepare('INSERT INTO post_images (post_id, image_data) VALUES (?,?)');
+      $null = null;
+      $img->bind_param('ib', $postId, $null);
+      $img->send_long_data(1, $bin);
+      $img->execute();
+      $img->close();
+      $imagesInserted++;
+    }
+  }
+
+  $conn->commit();
+  respond(['success'=>true,'message'=>'Publicación creada','post_id'=>$postId,'images'=>$imagesInserted]);
+} catch (Throwable $e) {
+  if (isset($conn)) { $conn->rollback(); }
+  respond(['success'=>false,'message'=>'Error creando publicación']);
+}
 ?>

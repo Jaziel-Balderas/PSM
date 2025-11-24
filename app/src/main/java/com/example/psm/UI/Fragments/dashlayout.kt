@@ -1,6 +1,7 @@
 package com.example.psm.UI.Fragments
 
 import Model.data.Post
+import Model.data.VoteResponse
 import Model.repository.PostRepository
 import Model.repository.SessionManager
 import android.content.Intent
@@ -100,26 +101,18 @@ class dashlayout : Fragment() {
         
         lifecycleScope.launch {
             try {
-                val response = repository.likePost(postId, userId)
-                
+                // Siempre enviamos vote = 1 para acción de like (SP quita si ya existe)
+                val response: VoteResponse? = repository.votePost(postId, userId, 1)
                 if (response != null && response.success) {
-                    // Actualizar UI
-                    post.isLiked = response.liked
-                    postsAdapter.updatePostLike(position, response.liked, response.likeCount)
-                    postsAdapter.notifyItemChanged(position)
+                    val p = response.post
+                    if (p != null) {
+                        postsAdapter.updatePostVote(position, p.user_vote, p.likes_count, p.dislikes_count)
+                    }
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        response?.message ?: "Error al dar like",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(requireContext(), response?.message ?: "Error al votar", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    "Error de conexión: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Error de conexión: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -135,7 +128,7 @@ class dashlayout : Fragment() {
         
         lifecycleScope.launch {
             try {
-                val response = repository.getPosts(currentUserId = currentUserId)
+                val response = repository.getPosts(userId = currentUserId)
                 
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false

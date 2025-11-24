@@ -26,11 +26,21 @@ class LoginActivity : AppCompatActivity(){
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.login)
         
         // Inicializar SessionManager
         SessionManager.init(this)
+        
+        // Verificar si hay sesión activa ANTES de mostrar el login
+        if (SessionManager.isLoggedIn && SessionManager.loadSessionFromCache()) {
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+        
+        enableEdgeToEdge()
+        setContentView(R.layout.login)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)

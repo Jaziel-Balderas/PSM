@@ -38,6 +38,9 @@ class EditProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_edit_profile)
+        
+        // Inicializar SessionManager
+        SessionManager.init(this)
 
         // 1. Inicialización de Repositorios y ViewModels
         userRepository = UserRepository()
@@ -75,17 +78,26 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-    // Patrón SINGLETON: Carga los datos del perfil actual
+    // Patrón SINGLETON: Carga los datos del perfil actual desde SQLite
     private fun loadUserDataFromSingleton() {
         // Acceder a la única instancia de la sesión (Singleton)
-        val user = SessionManager.currentUser
+        var user = SessionManager.currentUser
+        
+        // Si no hay usuario en memoria, intentar cargar desde SQLite
+        if (user == null) {
+            if (SessionManager.loadSessionFromCache()) {
+                user = SessionManager.currentUser
+            }
+        }
+        
         if (user != null) {
             etName.setText(user.nameuser)
             etLastName.setText(user.lastnames)
             etEmail.setText(user.email)
             etPhone.setText(user.phone)
-            etAddress.setText(user.direccion)
+            etAddress.setText(user.direccion ?: "")
             etNickname.setText(user.username)
+            // La contraseña se deja vacía por seguridad (solo se actualiza si el usuario ingresa una nueva)
         } else {
             Toast.makeText(this, "Error: No hay sesión activa.", Toast.LENGTH_LONG).show()
             finish()
@@ -96,12 +108,14 @@ class EditProfileActivity : AppCompatActivity() {
     private fun setupObservers() {
         authViewModel.updateStatus.observe(this, Observer { isSuccess ->
             if (isSuccess) {
-                Toast.makeText(this, "Perfil actualizado con éxito!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "✓ Perfil actualizado exitosamente", Toast.LENGTH_SHORT).show()
+                // Dar tiempo para que se actualice el SessionManager y SQLite
                 finish() // Vuelve al perfil para que se recargue la vista
             }
         })
+        
         authViewModel.errorMessage.observe(this, Observer { message ->
-            if (message.isNotEmpty()) {
+            if (message.isNotEmpty() && authViewModel.updateStatus.value == false) {
                 Toast.makeText(this, "Error: $message", Toast.LENGTH_LONG).show()
             }
         })
@@ -109,19 +123,32 @@ class EditProfileActivity : AppCompatActivity() {
 
     // Patrón MVC: Función que recolecta y llama al Controller
     private fun attemptUpdateProfile() {
+        // Validación básica
+        val name = etName.text.toString().trim()
+        val lastname = etLastName.text.toString().trim()
+        val email = etEmail.text.toString().trim()
+        val phone = etPhone.text.toString().trim()
+        val username = etNickname.text.toString().trim()
+        
+        if (name.isEmpty() || lastname.isEmpty() || email.isEmpty() || 
+            phone.isEmpty() || username.isEmpty()) {
+            Toast.makeText(this, "Por favor completa todos los campos obligatorios", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
         // 1. Recolectar datos del formulario
         val request = UpdateProfileRequest(
             userId = SessionManager.currentUser?.userId ?: run {
                 Toast.makeText(this, "Error de sesión.", Toast.LENGTH_SHORT).show()
                 return
             },
-            nameuser = etName.text.toString(),
-            lastnames = etLastName.text.toString(),
-            email = etEmail.text.toString(),
-            phone = etPhone.text.toString(),
-            direccion = etAddress.text.toString().takeIf { it.isNotEmpty() },
-            username = etNickname.text.toString(),
-            newPassword = etPassword.text.toString().takeIf { it.isNotEmpty() },
+            nameuser = name,
+            lastnames = lastname,
+            email = email,
+            phone = phone,
+            direccion = etAddress.text.toString().trim().takeIf { it.isNotEmpty() },
+            username = username,
+            newPassword = etPassword.text.toString().trim().takeIf { it.isNotEmpty() }
         )
 
         // 2. Llamar al Controller

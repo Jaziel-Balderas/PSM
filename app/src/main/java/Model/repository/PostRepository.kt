@@ -1,7 +1,7 @@
 package Model.repository
 
 import Model.dao.PostApi
-import Model.data.LikeResponse
+import Model.data.VoteResponse
 import Model.data.PostResponse
 import Model.data.PostsResponse
 import di.AppModule
@@ -24,43 +24,79 @@ class PostRepository {
         imageFiles: List<File>
     ): PostResponse? {
         return try {
-            // Crear partes del formulario multipart
-            val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
-            val titlePart = title.toRequestBody("text/plain".toMediaTypeOrNull())
-            val descriptionPart = description.toRequestBody("text/plain".toMediaTypeOrNull())
-            val locationPart = location.toRequestBody("text/plain".toMediaTypeOrNull())
-            val isPublicPart = if (isPublic) "1" else "0"
-            val isPublicPartBody = isPublicPart.toRequestBody("text/plain".toMediaTypeOrNull())
+            // Log ANTES de crear RequestBody
+            Log.d("PostRepository", "=== DATOS RECIBIDOS ===")
+            Log.d("PostRepository", "userId: '$userId'")
+            Log.d("PostRepository", "title: '$title'")
+            Log.d("PostRepository", "description (content): '$description' (length=${description.length})")
+            Log.d("PostRepository", "location: '$location'")
+            Log.d("PostRepository", "isPublic: $isPublic")
+            Log.d("PostRepository", "imageFiles: ${imageFiles.size}")
 
-            // Crear partes para cada imagen
-            val imageParts = imageFiles.mapIndexed { index, file ->
-                val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-                MultipartBody.Part.createFormData("images[]", file.name, requestFile)
+            // Validación adicional ANTES de enviar
+            if (userId.isEmpty() || userId == "-1") {
+                Log.e("PostRepository", "ERROR: userId inválido")
+                return PostResponse(false, "Error: Usuario no autenticado")
+            }
+            
+            if (description.isEmpty()) {
+                Log.e("PostRepository", "ERROR: description (content) vacío")
+                return PostResponse(false, "Error: La descripción es obligatoria")
             }
 
+            // Crear partes del formulario multipart usando RequestBody para campos de texto
+            val userIdPart = userId.toRequestBody("text/plain".toMediaTypeOrNull())
+            val titlePart = if (title.isNotEmpty()) {
+                title.toRequestBody("text/plain".toMediaTypeOrNull())
+            } else null
+            val contentPart = description.toRequestBody("text/plain".toMediaTypeOrNull())
+            val locationPart = if (location.isNotEmpty()) {
+                location.toRequestBody("text/plain".toMediaTypeOrNull())
+            } else null
+            val isPublicPart = (if (isPublic) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
+
+            // Crear partes para cada imagen
+            val imageParts = if (imageFiles.isNotEmpty()) {
+                imageFiles.map { file ->
+                    Log.d("PostRepository", "Imagen: ${file.name} (${file.length()} bytes)")
+                    val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("images[]", file.name, requestFile)
+                }
+            } else null
+
+            Log.d("PostRepository", "Ejecutando API call...")
+            
             val response = api.createPost(
                 userIdPart,
                 titlePart,
-                descriptionPart,
+                contentPart,
                 locationPart,
-                isPublicPartBody,
+                isPublicPart,
                 imageParts
             )
+            
+            Log.d("PostRepository", "Response code: ${response.code()}, isSuccessful: ${response.isSuccessful}")
 
             if (response.isSuccessful) {
-                response.body()
+                val body = response.body()
+                Log.d("PostRepository", "Response body: ${body?.message}")
+                body
             } else {
-                PostResponse(false, "Error: ${response.code()} - ${response.message()}")
+                val errorMsg = "Error: ${response.code()} - ${response.message()}"
+                Log.e("PostRepository", errorMsg)
+                PostResponse(false, errorMsg)
             }
         } catch (e: Exception) {
-            PostResponse(false, "Error de red: ${e.message}")
+            val errorMsg = "Error de red: ${e.message}"
+            Log.e("PostRepository", errorMsg, e)
+            PostResponse(false, errorMsg)
         }
     }
     
-    suspend fun getPosts(currentUserId: Int = 0, userId: Int? = null, limit: Int = 50, offset: Int = 0): PostsResponse? {
+    suspend fun getPosts(userId: Int, limit: Int = 50, offset: Int = 0): PostsResponse? {
         return try {
-            Log.d("PostRepository", "getPosts called with currentUserId=$currentUserId, userId=$userId")
-            val response = api.getPosts(currentUserId, userId, limit, offset)
+            Log.d("PostRepository", "getPosts called with userId=$userId limit=$limit offset=$offset")
+            val response = api.getPosts(userId, limit, offset)
             
             Log.d("PostRepository", "Response code: ${response.code()}, isSuccessful: ${response.isSuccessful}")
             
@@ -71,26 +107,26 @@ class PostRepository {
             } else {
                 val errorMsg = "Error: ${response.code()} - ${response.message()}"
                 Log.e("PostRepository", errorMsg)
-                PostsResponse(false, errorMsg, emptyList(), 0)
+                PostsResponse(false, emptyList(), 0, limit, offset, errorMsg)
             }
         } catch (e: Exception) {
             val errorMsg = "Error de red: ${e.message}"
             Log.e("PostRepository", errorMsg, e)
-            PostsResponse(false, errorMsg, emptyList(), 0)
+            PostsResponse(false, emptyList(), 0, limit, offset, errorMsg)
         }
     }
     
-    suspend fun likePost(postId: Int, userId: Int): LikeResponse? {
+    suspend fun votePost(postId: Int, userId: Int, vote: Int): VoteResponse? {
         return try {
-            val response = api.likePost(postId, userId)
+            val response = api.votePost(postId, userId, vote)
             
             if (response.isSuccessful) {
                 response.body()
             } else {
-                LikeResponse(false, "Error: ${response.code()} - ${response.message()}", false, 0)
+                VoteResponse(false, "Error: ${response.code()} - ${response.message()}", null)
             }
         } catch (e: Exception) {
-            LikeResponse(false, "Error de red: ${e.message}", false, 0)
+            VoteResponse(false, "Error de red: ${e.message}", null)
         }
     }
 }

@@ -12,6 +12,7 @@ import com.example.psm.R
 import de.hdodenhof.circleimageview.CircleImageView
 import com.example.psm.UI.controller.AuthVIewModel
 import Model.repository.UserRepository
+import Model.repository.SessionManager
 import Model.data.RegisterRequest
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -62,11 +63,21 @@ class RegisterActivity : AppCompatActivity() {
 
         authViewModel.registerStatus.observe(this, Observer { isSuccess ->
             if (isSuccess) {
-                Toast.makeText(this, "¡Registro completo! Inicia sesión.", Toast.LENGTH_LONG).show()
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-                finish()
+                // Si el registro fue exitoso y hay usuario en sesión, ir al Dashboard
+                if (SessionManager.isLoggedIn) {
+                    Toast.makeText(this, "¡Registro completo! Bienvenido.", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, DashboardActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+                    finish()
+                } else {
+                    Toast.makeText(this, "¡Registro completo! Inicia sesión.", Toast.LENGTH_LONG).show()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    startActivity(intent)
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+                    finish()
+                }
             }
         })
         authViewModel.errorMessage.observe(this, Observer { message ->
