@@ -59,14 +59,16 @@ class ProfileLayout : Fragment() {
 
         // 2. Patrón OBSERVER: Suscribirse al LiveData del perfil
         authViewModel.currentUserProfile.observe(viewLifecycleOwner, Observer { user ->
-
             if (user != null) {
-                // El Observer actualiza la View
                 txtNombreUsuario.text = "${user.nameuser} ${user.lastnames}"
 
-                // Lógica de imagen
+                // LOG PARA DEBUG
+                Log.d("PROFILE_IMAGE", "URL recibida: ${user.profile_image_url}")
+                Log.d("PROFILE_IMAGE", "Es null o vacía: ${user.profile_image_url.isNullOrEmpty()}")
+
                 if (!user.profile_image_url.isNullOrEmpty()) {
-                    val bitmap = decodeBase64ToBitmap(user.profile_image_url)
+                    val bitmap = decodeBase64ToBitmap(user.profile_image_url!!)
+                    Log.d("PROFILE_IMAGE", "Bitmap es null: ${bitmap == null}")
                     if (bitmap != null) {
                         fotoPerfil.setImageBitmap(bitmap)
                     } else {
