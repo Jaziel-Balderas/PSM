@@ -64,9 +64,9 @@ class PostRepository {
                 }
             } else null
 
-            Log.d("PostRepository", "Ejecutando API call...")
+            Log.d("PostRepository", "Ejecutando API call con Stored Procedure...")
             
-            val response = api.createPost(
+            val response = api.createPostSP(
                 userIdPart,
                 titlePart,
                 contentPart,
@@ -93,7 +93,7 @@ class PostRepository {
         }
     }
     
-    suspend fun getPosts(userId: Int, limit: Int = 50, offset: Int = 0): PostsResponse? {
+    suspend fun getPosts(userId: Int, limit: Int = 100, offset: Int = 0): PostsResponse? {
         return try {
             Log.d("PostRepository", "getPosts called with userId=$userId limit=$limit offset=$offset")
             val response = api.getPosts(userId, limit, offset)
@@ -127,6 +127,29 @@ class PostRepository {
             }
         } catch (e: Exception) {
             VoteResponse(false, "Error de red: ${e.message}", null)
+        }
+    }
+    
+    suspend fun searchPosts(userId: Int, query: String, limit: Int = 50, offset: Int = 0): PostsResponse? {
+        return try {
+            Log.d("PostRepository", "searchPosts: userId=$userId, query='$query', limit=$limit, offset=$offset")
+            val response = api.searchPosts(userId, query, limit, offset)
+            
+            Log.d("PostRepository", "Search response code: ${response.code()}, isSuccessful: ${response.isSuccessful}")
+            
+            if (response.isSuccessful) {
+                val body = response.body()
+                Log.d("PostRepository", "Search results: success=${body?.success}, posts count=${body?.posts?.size}")
+                body
+            } else {
+                val errorMsg = "Error: ${response.code()} - ${response.message()}"
+                Log.e("PostRepository", errorMsg)
+                PostsResponse(false, emptyList(), 0, limit, offset, errorMsg)
+            }
+        } catch (e: Exception) {
+            val errorMsg = "Error de red: ${e.message}"
+            Log.e("PostRepository", errorMsg, e)
+            PostsResponse(false, emptyList(), 0, limit, offset, errorMsg)
         }
     }
 }

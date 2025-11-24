@@ -14,6 +14,7 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +33,7 @@ class dashlayout : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var tvEmptyState: TextView
     private lateinit var swipeRefresh: SwipeRefreshLayout
+    private lateinit var searchView: SearchView
     private lateinit var postsAdapter: PostsAdapter
     private val repository = PostRepository()
 
@@ -50,6 +52,7 @@ class dashlayout : Fragment() {
         progressBar = view.findViewById(R.id.progressBar)
         tvEmptyState = view.findViewById(R.id.tvEmptyState)
         swipeRefresh = view.findViewById(R.id.swipeRefresh)
+        searchView = view.findViewById(R.id.searchView)
 
         btnSett?.setOnClickListener{
             val intent = Intent(requireContext(), fragment_settings::class.java)
@@ -58,7 +61,76 @@ class dashlayout : Fragment() {
         
         setupSwipeRefresh()
         setupRecyclerView()
+        setupSearchView()
         loadPosts()
+    }
+    
+    private fun setupSearchView() {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let { 
+                    if (it.isNotEmpty()) {
+                        performSearch(it)
+                    } else {
+                        loadPosts()
+                    }
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText.isNullOrEmpty()) {
+                    loadPosts()
+                } else if (newText.length >= 2) {
+                    performSearch(newText)
+                }
+                return true
+            }
+        })
+    }
+    
+    private fun performSearch(query: String) {
+        val userIdString = SessionManager.getUserId()
+        if (userIdString == null) {
+            Toast.makeText(requireContext(), "Debes iniciar sesión", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val userId = userIdString.toIntOrNull()
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Error con el ID de usuario", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        progressBar.visibility = View.VISIBLE
+        rvPosts.visibility = View.GONE
+        tvEmptyState.visibility = View.GONE
+        
+        lifecycleScope.launch {
+            try {
+                Log.d("dashlayout", "Searching posts with query: $query")
+                val response = repository.searchPosts(userId, query, 50, 0)
+                
+                if (response != null && response.posts.isNotEmpty()) {
+                    postsAdapter.updatePosts(response.posts)
+                    rvPosts.visibility = View.VISIBLE
+                    tvEmptyState.visibility = View.GONE
+                    Log.d("dashlayout", "Search found ${response.posts.size} posts")
+                } else {
+                    rvPosts.visibility = View.GONE
+                    tvEmptyState.visibility = View.VISIBLE
+                    tvEmptyState.text = "No se encontraron publicaciones"
+                    Log.d("dashlayout", "No posts found for query: $query")
+                }
+            } catch (e: Exception) {
+                Log.e("dashlayout", "Error searching posts", e)
+                Toast.makeText(requireContext(), "Error al buscar: ${e.message}", Toast.LENGTH_SHORT).show()
+                tvEmptyState.visibility = View.VISIBLE
+                tvEmptyState.text = "Error al buscar publicaciones"
+            } finally {
+                progressBar.visibility = View.GONE
+            }
+        }
     }
     
     private fun setupSwipeRefresh() {
@@ -72,6 +144,12 @@ class dashlayout : Fragment() {
             posts = mutableListOf(),
             onLikeClick = { post, position ->
                 handleLikeClick(post, position)
+            },
+            onDislikeClick = { post, position ->
+                handleDislikeClick(post, position)
+            },
+            onCommentClick = { post, position ->
+                handleCommentClick(post, position)
             }
         )
         rvPosts.apply {
@@ -117,6 +195,50 @@ class dashlayout : Fragment() {
         }
     }
     
+    private fun handleDislikeClick(post: Post, position: Int) {
+        val userIdString = SessionManager.getUserId()
+        if (userIdString == null) {
+            Toast.makeText(requireContext(), "Debes iniciar sesión", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val userId = userIdString.toIntOrNull()
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Error: ID de usuario inválido", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val postId = post.postId?.toIntOrNull()
+        if (postId == null) {
+            Toast.makeText(requireContext(), "Error al procesar la publicación", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        lifecycleScope.launch {
+            try {
+                // Enviamos vote = -1 para acción de dislike (SP quita si ya existe)
+                val response: VoteResponse? = repository.votePost(postId, userId, -1)
+                if (response != null && response.success) {
+                    val p = response.post
+                    if (p != null) {
+                        postsAdapter.updatePostVote(position, p.user_vote, p.likes_count, p.dislikes_count)
+                    }
+                } else {
+                    Toast.makeText(requireContext(), response?.message ?: "Error al votar", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error de conexión: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    
+    private fun handleCommentClick(post: Post, position: Int) {
+        val intent = Intent(requireContext(), com.example.psm.UI.Activity.CommentsActivity::class.java)
+        intent.putExtra("post_id", post.postId)
+        intent.putExtra("post_title", post.title)
+        startActivity(intent)
+    }
+    
     private fun loadPosts() {
         if (!swipeRefresh.isRefreshing) {
             progressBar.visibility = View.VISIBLE
@@ -138,6 +260,9 @@ class dashlayout : Fragment() {
                 if (response != null && response.success) {
                     if (response.posts.isNotEmpty()) {
                         Log.d("DashLayout", "Showing ${response.posts.size} posts")
+                        response.posts.forEachIndexed { index, post ->
+                            Log.d("DashLayout", "Post $index: id=${post.postId}, title=${post.title}, userVote=${post.userVote}")
+                        }
                         postsAdapter.updatePosts(response.posts)
                         rvPosts.visibility = View.VISIBLE
                         tvEmptyState.visibility = View.GONE

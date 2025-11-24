@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="4dp"
+    android:layout_marginHorizontal="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Header con usuario y tiempo -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ivUserProfile"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/perfilejemplo"
+                app:civ_border_width="1dp"
+                app:civ_border_color="#CCCCCC"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Usuario"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/tvDateTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="24 Nov 2025, 14:30"
+                    android:textColor="#888888"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Texto del comentario -->
+        <TextView
+            android:id="@+id/tvCommentText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Este es el texto del comentario"
+            android:textColor="@color/black"
+            android:textSize="14sp"/>
+
+        <!-- Acciones (Like, Responder) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/btnLikeComment"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_heart_outline"
+                android:contentDescription="Me gusta"
+                android:scaleType="centerInside"/>
+
+            <TextView
+                android:id="@+id/tvLikesCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="#666666"
+                android:textSize="12sp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="12dp"/>
+
+            <TextView
+                android:id="@+id/btnReply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Responder"
+                android:textColor="#666666"
+                android:textSize="12sp"
+                android:background="?attr/selectableItemBackground"
+                android:padding="4dp"/>
+
+            <TextView
+                android:id="@+id/tvRepliesCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:layout_marginStart="8dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <!-- Campo para responder (inicialmente oculto) -->
+        <LinearLayout
+            android:id="@+id/llReplyInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/etReply"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Escribe una respuesta..."
+                android:maxLines="3"
+                android:padding="8dp"
+                android:background="@android:drawable/edit_text"
+                android:textSize="13sp"/>
+
+            <ImageButton
+                android:id="@+id/btnSendReply"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_send"
+                android:contentDescription="Enviar respuesta"
+                android:scaleType="centerInside"/>
+        </LinearLayout>
+
+        <!-- RecyclerView para respuestas anidadas -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvReplies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

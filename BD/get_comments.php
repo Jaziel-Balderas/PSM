@@ -25,6 +25,8 @@ try {
         c.updated_at,
         u.username,
         u.nameuser,
+        u.lastnames,
+        CASE WHEN u.profile_image_url IS NOT NULL THEN TO_BASE64(u.profile_image_url) ELSE NULL END AS profile_image_base64,
         (SELECT COUNT(*) FROM comment_likes WHERE comment_id = c.comment_id AND user_id = ?) AS user_liked,
         (SELECT COUNT(*) FROM comment_replies WHERE comment_id = c.comment_id) AS replies_count
     FROM post_comments c
@@ -43,9 +45,23 @@ try {
     
     $comments = [];
     while ($row = $result->fetch_assoc()) {
-        $row['user_liked'] = (int)$row['user_liked'] > 0;
-        $row['replies_count'] = (int)$row['replies_count'];
-        $comments[] = $row;
+        // Mapear a camelCase para Kotlin
+        $comment = [
+            'commentId' => (int)$row['comment_id'],
+            'postId' => (int)$row['post_id'],
+            'userId' => (int)$row['user_id'],
+            'commentText' => $row['comment_text'],
+            'likesCount' => (int)$row['likes_count'],
+            'createdAt' => $row['created_at'],
+            'updatedAt' => $row['updated_at'],
+            'username' => $row['username'],
+            'nameuser' => $row['nameuser'],
+            'lastnames' => $row['lastnames'] ?? '',
+            'profileImageBase64' => $row['profile_image_base64'],
+            'userLiked' => (int)$row['user_liked'] > 0,
+            'repliesCount' => (int)$row['replies_count']
+        ];
+        $comments[] = $comment;
     }
     
     $stmt->close();

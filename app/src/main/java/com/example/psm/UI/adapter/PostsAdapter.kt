@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,17 +22,23 @@ import java.util.concurrent.TimeUnit
 
 class PostsAdapter(
     private val posts: MutableList<Post>,
-    private val onLikeClick: (Post, Int) -> Unit
+    private val onLikeClick: (Post, Int) -> Unit,
+    private val onDislikeClick: (Post, Int) -> Unit,
+    private val onCommentClick: (Post, Int) -> Unit
 ) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>() {
 
     class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivUserProfile: CircleImageView = view.findViewById(R.id.ivUserProfile)
         val tvUsername: TextView = view.findViewById(R.id.tvUsername)
         val tvLocation: TextView = view.findViewById(R.id.tvLocation)
-        val tvTimeAgo: TextView = view.findViewById(R.id.tvTimeAgo)
+        val tvDateTime: TextView = view.findViewById(R.id.tvDateTime)
         val vpPostMedia: ViewPager2 = view.findViewById(R.id.vpPostMedia)
         val btnLike: ImageButton = view.findViewById(R.id.btnLike)
         val tvLikeCount: TextView = view.findViewById(R.id.tvLikeCount)
+        val btnDislike: ImageButton = view.findViewById(R.id.btnDislike)
+        val tvDislikeCount: TextView = view.findViewById(R.id.tvDislikeCount)
+        val btnComment: ImageButton = view.findViewById(R.id.btnComment)
+        val tvCommentCount: TextView = view.findViewById(R.id.tvCommentCount)
         val btnShare: ImageButton = view.findViewById(R.id.btnShare)
         val tvTitle: TextView = view.findViewById(R.id.tvTitle)
         val tvDescription: TextView = view.findViewById(R.id.tvDescription)
@@ -45,9 +52,15 @@ class PostsAdapter(
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
+        Log.d("PostsAdapter", "onBindViewHolder position=$position, postId=${post.postId}, title=${post.title}")
         
-        // Información del usuario
-        holder.tvUsername.text = post.username ?: "Usuario"
+        // Información del usuario - mostrar nombre completo si está disponible
+        val displayName = if (!post.nameuser.isNullOrEmpty()) {
+            "${post.nameuser} ${post.lastnames ?: ""}".trim()
+        } else {
+            post.username ?: "Usuario"
+        }
+        holder.tvUsername.text = displayName
         
         // Foto de perfil - cargar desde base64
         if (!post.profileImageBase64.isNullOrEmpty()) {
@@ -69,14 +82,14 @@ class PostsAdapter(
             holder.tvLocation.visibility = View.GONE
         }
         
-        // Tiempo transcurrido
-        holder.tvTimeAgo.text = getTimeAgo(post.createdAt ?: "")
+        // Fecha y hora de creación
+        holder.tvDateTime.text = formatDateTime(post.createdAt ?: "")
         
         // Título
-        holder.tvTitle.text = post.title
+        holder.tvTitle.text = post.title.takeIf { it.isNotEmpty() } ?: "Sin título"
         
         // Descripción
-        if (post.description.isNotEmpty()) {
+        if (!post.description.isNullOrEmpty()) {
             holder.tvDescription.text = post.description
             holder.tvDescription.visibility = View.VISIBLE
         } else {
@@ -87,13 +100,29 @@ class PostsAdapter(
         val mediaAdapter = PostMediaAdapter(post.images.map { it.base64 })
         holder.vpPostMedia.adapter = mediaAdapter
         
-        // Likes (solo conteo positivo de likes)
+        // Likes
         holder.tvLikeCount.text = post.likesCount.toString()
         val liked = post.userVote == 1
         updateLikeButton(holder.btnLike, liked)
         
         holder.btnLike.setOnClickListener {
             onLikeClick(post, position)
+        }
+        
+        // Dislikes
+        holder.tvDislikeCount.text = post.dislikesCount.toString()
+        val disliked = post.userVote == -1
+        updateDislikeButton(holder.btnDislike, disliked)
+        
+        holder.btnDislike.setOnClickListener {
+            onDislikeClick(post, position)
+        }
+        
+        // Comentarios
+        holder.tvCommentCount.text = post.commentsCount.toString()
+        
+        holder.btnComment.setOnClickListener {
+            onCommentClick(post, position)
         }
         
         // Botón compartir
@@ -105,8 +134,10 @@ class PostsAdapter(
     override fun getItemCount(): Int = posts.size
 
     fun updatePosts(newPosts: List<Post>) {
+        Log.d("PostsAdapter", "updatePosts called with ${newPosts.size} posts")
         posts.clear()
         posts.addAll(newPosts)
+        Log.d("PostsAdapter", "Posts list now has ${posts.size} items")
         notifyDataSetChanged()
     }
     
@@ -126,10 +157,20 @@ class PostsAdapter(
         }
     }
     
+    private fun updateDislikeButton(button: ImageButton, isDisliked: Boolean) {
+        if (isDisliked) {
+            button.setImageResource(R.drawable.ic_heart_broken_filled)
+        } else {
+            button.setImageResource(R.drawable.ic_heart_broken)
+        }
+    }
+    
     private fun sharePost(context: android.content.Context, post: Post) {
         val shareText = buildString {
-            append(post.title)
-            if (post.description.isNotEmpty()) {
+            if (post.title.isNotEmpty()) {
+                append(post.title)
+            }
+            if (!post.description.isNullOrEmpty()) {
                 append("\n\n")
                 append(post.description)
             }
@@ -153,30 +194,14 @@ class PostsAdapter(
         return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
     }
     
-    private fun getTimeAgo(dateString: String): String {
+    private fun formatDateTime(dateString: String): String {
         return try {
-            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-            val date = sdf.parse(dateString)
-            val now = Date()
-            val diff = now.time - (date?.time ?: 0)
-            
-            val seconds = TimeUnit.MILLISECONDS.toSeconds(diff)
-            val minutes = TimeUnit.MILLISECONDS.toMinutes(diff)
-            val hours = TimeUnit.MILLISECONDS.toHours(diff)
-            val days = TimeUnit.MILLISECONDS.toDays(diff)
-            
-            when {
-                seconds < 60 -> "Ahora"
-                minutes < 60 -> "Hace ${minutes}m"
-                hours < 24 -> "Hace ${hours}h"
-                days < 7 -> "Hace ${days}d"
-                else -> {
-                    val outputFormat = SimpleDateFormat("dd MMM", Locale.getDefault())
-                    outputFormat.format(date ?: Date())
-                }
-            }
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+            val date = inputFormat.parse(dateString)
+            val outputFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+            outputFormat.format(date ?: Date())
         } catch (e: Exception) {
-            "Reciente"
+            ""
         }
     }
 }

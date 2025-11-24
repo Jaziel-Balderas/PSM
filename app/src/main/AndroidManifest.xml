@@ -20,6 +20,10 @@
             android:name=".UI.Activity.EditProfileActivity"
             android:exported="false" />
         <activity
+            android:name=".UI.Activity.CommentsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".UI.Activity.DraftsActivity"
             android:exported="false" />
         <activity android:name=".UI.Fragments.EditProfile" />

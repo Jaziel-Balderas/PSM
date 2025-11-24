@@ -34,52 +34,67 @@
         app:layout_constraintBottom_toBottomOf="@+id/titleFrag">
     </ImageButton>
 
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@android:drawable/edit_text"
+        android:queryHint="Buscar publicaciones..."
+        android:iconifiedByDefault="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleFrag" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleFrag">
+        app:layout_constraintTop_toBottomOf="@+id/searchView">
 
-        <ScrollView
-            android:id="@+id/sv_dashboard_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPosts"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_margin="16dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvPosts"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"/>
+            <TextView
+                android:id="@+id/tvEmptyState"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:padding="32dp"
+                android:text="No hay publicaciones aún"
+                android:textAlignment="center"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="16dp"
-                    android:visibility="gone"/>
-
-                <TextView
-                    android:id="@+id/tvEmptyState"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="No hay publicaciones aún"
-                    android:textSize="16sp"
-                    android:textAlignment="center"
-                    android:padding="32dp"
-                    android:textColor="@android:color/darker_gray"
-                    android:visibility="gone"/>
-            </LinearLayout>
-        </ScrollView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

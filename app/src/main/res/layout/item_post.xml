@@ -56,12 +56,12 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/tvTimeAgo"
+                android:id="@+id/tvDateTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hace 2h"
+                android:text="24 Nov 2025, 14:30"
                 android:textColor="#888888"
-                android:textSize="12sp"/>
+                android:textSize="11sp"/>
 
         </LinearLayout>
 
@@ -71,7 +71,7 @@
             android:layout_height="350dp"
             android:background="#F0F0F0"/>
 
-        <!-- Sección de acciones (Like, Compartir) -->
+        <!-- Sección de acciones (Like, Dislike, Comentar, Compartir) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -80,13 +80,14 @@
             android:paddingTop="8dp"
             android:gravity="center_vertical">
 
+            <!-- Like -->
             <ImageButton
                 android:id="@+id/btnLike"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_heart_outline"
-                android:contentDescription="Like"
+                android:contentDescription="Me gusta"
                 android:scaleType="centerInside"/>
 
             <TextView
@@ -97,8 +98,54 @@
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 android:layout_marginStart="4dp"
-                android:layout_marginEnd="16dp"/>
+                android:layout_marginEnd="12dp"/>
 
+            <!-- Dislike -->
+            <ImageButton
+                android:id="@+id/btnDislike"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_heart_broken"
+                android:contentDescription="No me gusta"
+                android:scaleType="centerInside"/>
+
+            <TextView
+                android:id="@+id/tvDislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="12dp"/>
+
+            <!-- Comentar -->
+            <ImageButton
+                android:id="@+id/btnComment"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_comment"
+                android:contentDescription="Comentar"
+                android:scaleType="centerInside"/>
+
+            <TextView
+                android:id="@+id/tvCommentCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="12dp"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+            <!-- Compartir -->
             <ImageButton
                 android:id="@+id/btnShare"
                 android:layout_width="32dp"

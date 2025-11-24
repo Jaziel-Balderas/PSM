@@ -65,7 +65,8 @@ try {
         'success' => true,
         'message' => $message,
         'liked' => !$alreadyLiked,
-        'likes_count' => (int)$likesCount
+        'likesCount' => (int)$likesCount,
+        'commentId' => $commentId
     ]);
     
 } catch (Throwable $e) {

@@ -2,10 +2,12 @@ package Model.data
 
 data class Post(
     val postId: String? = null,
-    val userId: String,
+    val userId: String = "",
     val username: String? = null,
-    val title: String,
-    val description: String, // maps to DB 'content'
+    val nameuser: String? = null,
+    val lastnames: String? = null,
+    val title: String = "",
+    val description: String = "", // maps to DB 'content'
     val location: String? = null,
     val images: List<PostImage> = emptyList(), // multi-image support
     val isPublic: Boolean = true,

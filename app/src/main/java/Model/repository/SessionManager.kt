@@ -101,6 +101,8 @@ object SessionManager {
     }
     
     fun getUserId(): String? {
-        return sharedPreferences?.getString(KEY_USER_ID, null)
+        val userId = sharedPreferences?.getString(KEY_USER_ID, null)
+        Log.d(TAG, "getUserId() llamado - Retornando: '$userId' (isNull: ${userId == null}, isEmpty: ${userId?.isEmpty()})")
+        return userId
     }
 }

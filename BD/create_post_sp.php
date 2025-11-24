@@ -11,16 +11,10 @@ $isJson = is_array($json);
 $data = $isJson ? $json : $_POST;
 
 // Debug logging
-error_log("==================== NEW REQUEST ====================");
-error_log("DEBUG create_post.php - isJson: " . ($isJson ? 'true' : 'false'));
-error_log("DEBUG create_post.php - Raw input length: " . strlen($raw));
-error_log("DEBUG create_post.php - Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'not set'));
-error_log("DEBUG create_post.php - Request Method: " . $_SERVER['REQUEST_METHOD']);
-error_log("DEBUG create_post.php - POST count: " . count($_POST));
-error_log("DEBUG create_post.php - POST keys: " . implode(', ', array_keys($_POST)));
-error_log("DEBUG create_post.php - POST full data: " . print_r($_POST, true));
-error_log("DEBUG create_post.php - FILES count: " . count($_FILES));
-error_log("DEBUG create_post.php - FILES keys: " . implode(', ', array_keys($_FILES)));
+error_log("==================== NEW REQUEST (SP VERSION) ====================");
+error_log("DEBUG create_post_sp.php - isJson: " . ($isJson ? 'true' : 'false'));
+error_log("DEBUG create_post_sp.php - Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'not set'));
+error_log("DEBUG create_post_sp.php - POST keys: " . implode(', ', array_keys($_POST)));
 if (!empty($_POST)) {
     foreach ($_POST as $key => $value) {
         error_log("  POST[$key] = " . (is_string($value) ? "'$value'" : json_encode($value)));
@@ -37,25 +31,39 @@ $isPublic = isset($data['is_public']) ? (int)$data['is_public'] : 1;
 error_log("VALORES EXTRAÍDOS:");
 error_log("  user_id: $userId (isset: " . (isset($data['user_id']) ? 'true' : 'false') . ", raw: '" . ($data['user_id'] ?? 'NULL') . "')");
 error_log("  title: " . ($title ?? 'NULL'));
-error_log("  content: '$content' (length: " . strlen($content) . ", isset: " . (isset($data['content']) ? 'true' : 'false') . ")");
+error_log("  content: '$content' (length: " . strlen($content) . ")");
 error_log("  location: " . ($location ?? 'NULL'));
 error_log("  is_public: $isPublic");
-
-if ($userId <= 0 || $content === '') {
-  error_log("❌ VALIDACIÓN FALLÓ: userId=$userId, content='$content'");
-  respond(['success'=>false,'message'=>'user_id y content son requeridos']);
-}
 
 try {
   $conn = DBConnection::getInstance()->getConnection();
   $conn->begin_transaction();
 
-  $stmt = $conn->prepare('INSERT INTO posts (user_id, title, content, location, is_public) VALUES (?,?,?,?,?)');
-  if (!$stmt) { throw new Exception('No se pudo preparar INSERT posts'); }
+  // Llamar al procedimiento almacenado
+  $stmt = $conn->prepare('CALL sp_crear_post(?, ?, ?, ?, ?, @post_id, @success, @message)');
+  if (!$stmt) { 
+    throw new Exception('No se pudo preparar CALL sp_crear_post'); 
+  }
+  
   $stmt->bind_param('isssi', $userId, $title, $content, $location, $isPublic);
   $stmt->execute();
-  $postId = $conn->insert_id;
   $stmt->close();
+  
+  // Obtener los valores de salida
+  $result = $conn->query('SELECT @post_id as post_id, @success as success, @message as message');
+  $row = $result->fetch_assoc();
+  
+  $postId = (int)$row['post_id'];
+  $success = (bool)$row['success'];
+  $message = $row['message'];
+  
+  error_log("RESULTADO PROCEDIMIENTO: success=$success, post_id=$postId, message=$message");
+  
+  if (!$success || $postId <= 0) {
+    $conn->rollback();
+    error_log("❌ VALIDACIÓN FALLÓ: $message");
+    respond(['success'=>false, 'message'=>$message]);
+  }
 
   $imagesInserted = 0;
 
@@ -99,9 +107,11 @@ try {
   }
 
   $conn->commit();
+  error_log("✅ PUBLICACIÓN CREADA: post_id=$postId, images=$imagesInserted");
   respond(['success'=>true,'message'=>'Publicación creada','post_id'=>$postId,'images'=>$imagesInserted]);
 } catch (Throwable $e) {
   if (isset($conn)) { $conn->rollback(); }
-  respond(['success'=>false,'message'=>'Error creando publicación']);
+  error_log("❌ ERROR CRÍTICO: " . $e->getMessage());
+  respond(['success'=>false,'message'=>'Error creando publicación: ' . $e->getMessage()]);
 }
 ?>

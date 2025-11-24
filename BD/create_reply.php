@@ -52,7 +52,9 @@ try {
             r.reply_text,
             r.created_at,
             u.username,
-            u.nameuser
+            u.nameuser,
+            u.lastnames,
+            CASE WHEN u.profile_image_url IS NOT NULL THEN TO_BASE64(u.profile_image_url) ELSE NULL END AS profile_image_base64
         FROM comment_replies r
         LEFT JOIN users u ON r.user_id = u.user_id
         WHERE r.reply_id = ?');
@@ -60,8 +62,21 @@ try {
         $getReply->bind_param('i', $replyId);
         $getReply->execute();
         $result = $getReply->get_result();
-        $reply = $result->fetch_assoc();
+        $row = $result->fetch_assoc();
         $getReply->close();
+        
+        // Mapear a camelCase
+        $reply = [
+            'replyId' => (int)$row['reply_id'],
+            'commentId' => (int)$row['comment_id'],
+            'userId' => (int)$row['user_id'],
+            'replyText' => $row['reply_text'],
+            'createdAt' => $row['created_at'],
+            'username' => $row['username'],
+            'nameuser' => $row['nameuser'],
+            'lastnames' => $row['lastnames'] ?? '',
+            'profileImageBase64' => $row['profile_image_base64']
+        ];
         
         respond([
             'success' => true,
