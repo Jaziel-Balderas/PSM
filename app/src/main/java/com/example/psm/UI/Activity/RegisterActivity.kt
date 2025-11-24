@@ -18,10 +18,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import android.widget.Toast
 import android.widget.EditText
+import com.example.psm.UI.controller.ProfileVIewModel
+import com.example.psm.UI.controller.AuthViewModelFactory
+
 
 
 class RegisterActivity : AppCompatActivity() {
-
 
     private lateinit var authViewModel: AuthVIewModel //Declaración del Controller
     private lateinit var profileImage: CircleImageView
@@ -123,14 +125,5 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-}
-class AuthViewModelFactory(private val repository: UserRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AuthVIewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return AuthVIewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

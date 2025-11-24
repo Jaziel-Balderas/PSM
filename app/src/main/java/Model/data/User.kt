@@ -8,6 +8,6 @@ data class User(
     val email: String, // Coincide con email
     val phone: String, // Coincide con phone (si lo cambias a VARCHAR)
     val direccion: String? = null, // Coincide con direccion
-    val profile_image: String? = null // Coincide con profile_image_url (si lo ajustas)
+    val profile_image_url: String? = null // Coincide con profile_image_url (si lo ajustas)
 
 )

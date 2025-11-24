@@ -30,12 +30,5 @@ class fragment_settings : AppCompatActivity() {
             startActivity(intent)
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
-
-        val btnPriv: Button = findViewById(R.id.btnPrivacidadCuenta)
-        btnPriv.setOnClickListener {
-            val intent: Intent = Intent(this, privacidad::class.java)
-            startActivity(intent)
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        }
     }
 }

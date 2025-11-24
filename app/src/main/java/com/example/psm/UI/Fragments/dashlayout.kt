@@ -8,11 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import com.example.psm.R
-
+import com.example.psm.UI.Activity.RegisterActivity
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
-
 class dashlayout : Fragment() {
 
     override fun onCreateView(
@@ -21,7 +20,6 @@ class dashlayout : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_dashlayout, container, false)
-
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

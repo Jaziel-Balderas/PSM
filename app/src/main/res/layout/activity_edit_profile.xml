@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UI.Activity.EditProfileActivity">
+
+    <!-- HEADER -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/back_buttonLoginReg3"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/iconsbg"
+            android:paddingLeft="12dp"
+            android:src="@drawable/back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/titleFrag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="ConectaFan ♫"
+            android:textColor="@color/black"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:layout_marginStart="28dp"
+            app:layout_constraintStart_toEndOf="@id/back_buttonLoginReg3"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!-- SCROLLVIEW FUNCIONAL -->
+    <ScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="40dp">
+
+            <TextView
+                android:id="@+id/textName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Nombre"
+                android:textColor="@color/black"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2" />
+
+            <EditText
+                android:id="@+id/NameBoxUP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:hint=""
+                android:padding="12dp"
+                android:inputType="textPersonName|textCapWords"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textLastName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Apellidos"
+                android:textColor="@color/black"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2" />
+
+            <EditText
+                android:id="@+id/LastNameBoxUP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:hint=""
+                android:padding="12dp"
+                android:inputType="textPersonName|textCapWords"
+                android:textColorHint="#990B0B0B"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Contraseña"
+                android:textColor="@color/black"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2" />
+
+            <EditText
+                android:id="@+id/PasswordBoxUP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:hint="Mínimo 8 caracteres"
+                android:padding="12dp"
+                android:inputType="textPassword"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textMail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Correo Electrónico"
+                android:textColor="@color/black"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2" />
+
+            <EditText
+                android:id="@+id/MailBoxUP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:hint="ejemplo@dominio.com"
+                android:padding="12dp"
+                android:inputType="textEmailAddress"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textPhoneUP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Teléfono"
+                android:textColor="@color/black"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2" />
+
+            <EditText
+                android:id="@+id/PhoneBoxUP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:hint="81 0000 0000"
+                android:padding="12dp"
+                android:inputType="phone"
+                android:textColorHint="#99050505"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textDireccion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Dirección"
+                android:textColor="@color/black"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2" />
+
+            <EditText
+                android:id="@+id/AddressBoxUP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:hint="Calle, número, colonia"
+                android:padding="12dp"
+                android:inputType="textPostalAddress"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textNickNameUP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Alias (Nombre de Usuario)"
+                android:textColor="@color/black"
+                style="@style/TextAppearance.MaterialComponents.Subtitle2" />
+
+            <EditText
+                android:id="@+id/NickNameBoxUP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/edittext_diseno"
+                android:hint="Jazz07"
+                android:padding="12dp"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:textColorHint="#99000000"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/register_buttonUP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:paddingVertical="14dp"
+                android:text="CONFIRMAR"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/black" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
