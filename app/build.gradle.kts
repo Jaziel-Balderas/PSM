@@ -66,5 +66,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
     // SwipeRefreshLayout (Para el pull-to-refresh)
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-
+    // Fragment KTX
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
 }

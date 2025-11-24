@@ -14,9 +14,11 @@ import com.example.psm.UI.controller.AuthVIewModel
 import Model.repository.UserRepository
 import Model.repository.SessionManager
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import android.widget.Toast
+import com.example.psm.UI.controller.AuthViewModelFactory
+
+
 
 class LoginActivity : AppCompatActivity(){
     private lateinit var authViewModel: AuthVIewModel
