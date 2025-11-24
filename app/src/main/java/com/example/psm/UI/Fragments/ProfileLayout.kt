@@ -22,9 +22,16 @@ import android.util.Base64
 import androidx.fragment.app.viewModels
 import android.util.Log
 import android.widget.ImageView
+import android.widget.ProgressBar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.psm.UI.Activity.EditProfileActivity
+import com.example.psm.UI.adapter.PostsAdapter
 import com.example.psm.UI.controller.AuthVIewModel
+import com.example.psm.UI.controller.PostViewModel
+import com.example.psm.UI.controller.PostViewModelFactory
 import Model.repository.SessionManager
+import Model.repository.PostRepository
 import Model.data.User // Tu Modelo de Datos
 
 
@@ -35,6 +42,12 @@ private const val ARG_PARAM2 = "param2"
 class ProfileLayout : Fragment() {
 
     private lateinit var authViewModel: AuthVIewModel
+    private lateinit var postViewModel: PostViewModel
+    private lateinit var txtNombreUsuario: TextView
+    private lateinit var fotoPerfil: de.hdodenhof.circleimageview.CircleImageView
+    private lateinit var recyclerViewUserPosts: RecyclerView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var postsAdapter: PostsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,42 +60,97 @@ class ProfileLayout : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Inicializar SessionManager
+        SessionManager.init(requireContext())
+
         val btnEdit = view.findViewById<ImageButton>(R.id.btnEditarPerfil)
-        val txtNombreUsuario = view.findViewById<TextView>(R.id.txtNombreUsuario)
-        val fotoPerfil = view.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.fotoPerfil) // Captura aquí
+        txtNombreUsuario = view.findViewById<TextView>(R.id.txtNombreUsuario)
+        fotoPerfil = view.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.fotoPerfil)
+        recyclerViewUserPosts = view.findViewById(R.id.recyclerViewUserPosts)
+        progressBar = view.findViewById(R.id.progressBarProfile)
+        
+        Log.d("ProfileLayout", "onViewCreated: Views initialized")
+        
+        // Asegurarse de que la imagen esté limpia al inicio
+        fotoPerfil.setImageDrawable(null)
+        
+        // Configurar RecyclerView
+        recyclerViewUserPosts.layoutManager = LinearLayoutManager(requireContext())
+        postsAdapter = PostsAdapter(
+            posts = mutableListOf(),
+            onLikeClick = { _, _ -> }, // No necesario en perfil
+            onDislikeClick = { _, _ -> }, // No necesario en perfil
+            onCommentClick = { _, _ -> }, // No necesario en perfil
+            onFavoriteClick = { _, _ -> }, // No necesario en perfil
+            onDeletePost = { _, _ -> } // No permitir eliminar desde perfil
+        )
+        recyclerViewUserPosts.adapter = postsAdapter
+
+        // PRIMERO: Cargar datos desde SessionManager (SQLite - modo offline)
+        Log.d("ProfileLayout", "Loading profile from cache...")
+        loadProfileFromCache()
 
         val userRepository = UserRepository()
+        val postRepository = PostRepository()
 
         // 1. Inicializar el Controller (MVC)
         authViewModel = ViewModelProvider(this, AuthViewModelFactory(userRepository))
             .get(AuthVIewModel::class.java)
+            
+        postViewModel = ViewModelProvider(this, PostViewModelFactory(postRepository))
+            .get(PostViewModel::class.java)
 
-        // 2. Patrón OBSERVER: Suscribirse al LiveData del perfil
+        // 2. Patrón OBSERVER: Suscribirse al LiveData del perfil (modo online)
         authViewModel.currentUserProfile.observe(viewLifecycleOwner, Observer { user ->
+
+            Log.d("ProfileLayout", "Observer triggered: user=${user != null}")
+            
             if (user != null) {
                 txtNombreUsuario.text = "${user.nameuser} ${user.lastnames}"
 
-                // LOG PARA DEBUG
-                Log.d("PROFILE_IMAGE", "URL recibida: ${user.profile_image_url}")
-                Log.d("PROFILE_IMAGE", "Es null o vacía: ${user.profile_image_url.isNullOrEmpty()}")
-
+                Log.d("ProfileLayout", "User from server: ${user.nameuser}, hasImage: ${!user.profile_image_url.isNullOrEmpty()}")
+                
+                // Lógica de imagen
                 if (!user.profile_image_url.isNullOrEmpty()) {
-                    val bitmap = decodeBase64ToBitmap(user.profile_image_url!!)
-                    Log.d("PROFILE_IMAGE", "Bitmap es null: ${bitmap == null}")
+                    Log.d("ProfileLayout", "Decoding profile image from server")
+                    val bitmap = decodeBase64ToBitmap(user.profile_image_url)
                     if (bitmap != null) {
                         fotoPerfil.setImageBitmap(bitmap)
+                        Log.d("ProfileLayout", "Profile image from server set successfully")
                     } else {
                         // Fallo en decodificación
+                        Log.w("ProfileLayout", "Failed to decode bitmap from server, using default")
                         fotoPerfil.setImageResource(R.drawable.perfilejemplo)
                     }
                 } else {
                     // No hay imagen guardada
+                    Log.w("ProfileLayout", "No profile image URL from server, using default")
                     fotoPerfil.setImageResource(R.drawable.perfilejemplo)
                 }
-            } else {
-                txtNombreUsuario.text = "Error: Sesión no válida"
             }
         })
+        
+        // Observer para las publicaciones del usuario
+        postViewModel.userPosts.observe(viewLifecycleOwner, Observer { posts ->
+            if (posts.isNotEmpty()) {
+                postsAdapter.updatePosts(posts)
+            }
+        })
+        
+        // Observer para loading
+        postViewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+            progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        })
+        
+        // Cargar publicaciones del usuario actual
+        val userId = SessionManager.getUserId()
+        if (!userId.isNullOrEmpty()) {
+            postViewModel.loadUserPosts(userId)
+        }
+        
+        // Cargar perfil del usuario actual desde el servidor
+        Log.d("ProfileLayout", "Loading profile from server...")
+        authViewModel.loadUserProfile()
 
         // 3. Listener para navegar a Edición
         btnEdit.setOnClickListener {
@@ -91,24 +159,87 @@ class ProfileLayout : Fragment() {
         }
     }
 
-            override fun onResume() {
-                super.onResume()
-                if (::authViewModel.isInitialized) {
-                    // Llama a la nueva función de recarga del Controller
-                    authViewModel.loadUserProfile()
+    // Función para cargar el perfil desde SQLite (modo offline)
+    private fun loadProfileFromCache() {
+        val currentUser = SessionManager.currentUser
+        
+        Log.d("ProfileLayout", "=== loadProfileFromCache START ===")
+        Log.d("ProfileLayout", "currentUser=${currentUser != null}")
+        
+        if (currentUser != null) {
+            // Mostrar datos desde cache inmediatamente
+            txtNombreUsuario.text = "${currentUser.nameuser} ${currentUser.lastnames}"
+            
+            Log.d("ProfileLayout", "User: ${currentUser.nameuser}")
+            Log.d("ProfileLayout", "profile_image_url isNull: ${currentUser.profile_image_url == null}")
+            Log.d("ProfileLayout", "profile_image_url isEmpty: ${currentUser.profile_image_url?.isEmpty()}")
+            Log.d("ProfileLayout", "profile_image_url length: ${currentUser.profile_image_url?.length}")
+            
+            // Cargar foto de perfil
+            if (!currentUser.profile_image_url.isNullOrEmpty()) {
+                Log.d("ProfileLayout", ">>> Attempting to decode profile image from cache")
+                val bitmap = decodeBase64ToBitmap(currentUser.profile_image_url)
+                if (bitmap != null) {
+                    Log.d("ProfileLayout", ">>> Bitmap decoded successfully: ${bitmap.width}x${bitmap.height}")
+                    fotoPerfil.setImageBitmap(bitmap)
+                    Log.d("ProfileLayout", ">>> Profile image SET to ImageView")
+                } else {
+                    Log.w("ProfileLayout", ">>> Failed to decode bitmap, using default")
+                    fotoPerfil.setImageResource(R.drawable.perfilejemplo)
                 }
+            } else {
+                Log.w("ProfileLayout", ">>> No profile image URL, using default")
+                fotoPerfil.setImageResource(R.drawable.perfilejemplo)
             }
+        } else {
+            Log.w("ProfileLayout", "currentUser is NULL, trying to load from cache")
+            // Si no hay usuario en memoria, intentar cargar desde SQLite
+            if (SessionManager.loadSessionFromCache()) {
+                Log.d("ProfileLayout", "Session loaded from cache, retrying...")
+                loadProfileFromCache()
+            } else {
+                Log.e("ProfileLayout", "Failed to load session from cache")
+                txtNombreUsuario.text = "Error: Sesión no válida"
+                fotoPerfil.setImageResource(R.drawable.perfilejemplo)
+            }
+        }
+        Log.d("ProfileLayout", "=== loadProfileFromCache END ===")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        
+        // Recargar datos desde SQLite cuando volvemos a este Fragment
+        SessionManager.loadSessionFromCache()
+        
+        // Recargar UI con datos actualizados del cache
+        if (::txtNombreUsuario.isInitialized && ::fotoPerfil.isInitialized) {
+            loadProfileFromCache()
+        }
+        
+        // También recargar desde el ViewModel si está inicializado
+        if (::authViewModel.isInitialized) {
+            authViewModel.loadUserProfile()
+        }
+        
+        // Recargar publicaciones del usuario
+        if (::postViewModel.isInitialized) {
+            val userId = SessionManager.getUserId()
+            if (!userId.isNullOrEmpty()) {
+                postViewModel.loadUserPosts(userId)
+            }
+        }
+    }
 
 
 }
 
 private fun decodeBase64ToBitmap(base64Str: String): Bitmap? {
     return try {
-        val cleaned = base64Str.replace("\\s".toRegex(), "")
-        val imageBytes = Base64.decode(cleaned, Base64.DEFAULT)
-        BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        val decodedBytes = Base64.decode(base64Str, Base64.DEFAULT)
+        BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
     } catch (e: Exception) {
-        Log.e("DECODE_ERROR", "Error al decodificar imagen: ${e.message}")
+        Log.e("ProfileLayout", "Error decodificando imagen: ${e.message}")
         null
     }
 }

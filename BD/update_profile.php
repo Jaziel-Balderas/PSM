@@ -1,0 +1,188 @@
+<?php
+ob_start();
+header('Content-Type: application/json');
+require_once 'DBConnection.php';
+
+function respond($arr){ 
+  ob_end_clean();
+  echo json_encode($arr); 
+  exit(); 
+}
+
+$raw = file_get_contents('php://input');
+$json = json_decode($raw, true);
+$isJson = is_array($json);
+$data = $isJson ? $json : $_POST;
+
+$userId = isset($data['userId']) ? (int)$data['userId'] : 0;
+
+if ($userId <= 0) {
+  respond(['success'=>false,'message'=>'userId requerido']);
+}
+
+// Optional fields to update
+$nameuser = isset($data['nameuser']) ? trim((string)$data['nameuser']) : null;
+$lastnames = isset($data['lastnames']) ? trim((string)$data['lastnames']) : null;
+$username = isset($data['username']) ? trim((string)$data['username']) : null;
+$email = isset($data['email']) ? trim((string)$data['email']) : null;
+$phone = isset($data['phone']) ? trim((string)$data['phone']) : null;
+$direccion = isset($data['direccion']) ? trim((string)$data['direccion']) : null;
+$newPassword = isset($data['newPassword']) ? trim((string)$data['newPassword']) : null;
+$profileImageBase64 = isset($data['profileImageBase64']) ? $data['profileImageBase64'] : null;
+
+// Build dynamic update
+$updates = [];
+$types = '';
+$values = [];
+
+if ($nameuser !== null && $nameuser !== '') {
+  $updates[] = 'nameuser = ?';
+  $types .= 's';
+  $values[] = $nameuser;
+}
+
+if ($lastnames !== null && $lastnames !== '') {
+  $updates[] = 'lastnames = ?';
+  $types .= 's';
+  $values[] = $lastnames;
+}
+
+if ($username !== null && $username !== '') {
+  if (!preg_match('/^[A-Za-z0-9_]{3,50}$/', $username)) {
+    respond(['success'=>false,'message'=>'Alias inválido (3-50, letras/números/_)']);
+  }
+  $updates[] = 'username = ?';
+  $types .= 's';
+  $values[] = $username;
+}
+
+if ($email !== null && $email !== '') {
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    respond(['success'=>false,'message'=>'Correo electrónico inválido']);
+  }
+  $updates[] = 'email = ?';
+  $types .= 's';
+  $values[] = $email;
+}
+
+if ($phone !== null) {
+  $updates[] = 'phone = ?';
+  $types .= 's';
+  $values[] = $phone;
+}
+
+if ($direccion !== null) {
+  $updates[] = 'direccion = ?';
+  $types .= 's';
+  $values[] = $direccion;
+}
+
+// Manejar contraseña si se proporciona
+if ($newPassword !== null && $newPassword !== '') {
+  if (strlen($newPassword) < 8) {
+    respond(['success'=>false,'message'=>'La contraseña debe tener al menos 8 caracteres']);
+  }
+  $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+  $updates[] = 'password = ?';
+  $types .= 's';
+  $values[] = $hashedPassword;
+}
+
+// Manejar imagen de perfil si se proporciona
+if ($profileImageBase64 !== null && $profileImageBase64 !== '') {
+  $imageData = base64_decode($profileImageBase64);
+  if ($imageData !== false && strlen($imageData) > 0) {
+    $updates[] = 'profile_image_url = ?';
+    $types .= 's';
+    $values[] = $imageData;
+  }
+}
+
+if (empty($updates)) {
+  respond(['success'=>false,'message'=>'No hay campos para actualizar']);
+}
+
+try {
+  $conn = DBConnection::getInstance()->getConnection();
+
+  // Check uniqueness for username and email if provided
+  if ($username !== null && $username !== '') {
+    $chk = $conn->prepare('SELECT 1 FROM users WHERE username = ? AND user_id != ? LIMIT 1');
+    $chk->bind_param('si', $username, $userId);
+    $chk->execute();
+    $r = $chk->get_result();
+    if ($r && $r->num_rows > 0) {
+      respond(['success'=>false,'message'=>'El alias ya está en uso']);
+    }
+    $chk->close();
+  }
+
+  if ($email !== null && $email !== '') {
+    $chk = $conn->prepare('SELECT 1 FROM users WHERE email = ? AND user_id != ? LIMIT 1');
+    $chk->bind_param('si', $email, $userId);
+    $chk->execute();
+    $r = $chk->get_result();
+    if ($r && $r->num_rows > 0) {
+      respond(['success'=>false,'message'=>'El correo ya está registrado']);
+    }
+    $chk->close();
+  }
+
+  // Build and execute update
+  $sql = 'UPDATE users SET ' . implode(', ', $updates) . ' WHERE user_id = ?';
+  $stmt = $conn->prepare($sql);
+  
+  $types .= 'i';
+  $values[] = $userId;
+  
+  $stmt->bind_param($types, ...$values);
+  $ok = $stmt->execute();
+  $affected = $stmt->affected_rows;
+  $stmt->close();
+
+  if (!$ok) {
+    respond(['success'=>false,'message'=>'No se pudo actualizar el perfil']);
+  }
+
+  // Obtener los datos actualizados del usuario
+  $stmt = $conn->prepare('SELECT user_id, nameuser, lastnames, username, email, password, phone, direccion, profile_image_url FROM users WHERE user_id = ? LIMIT 1');
+  $stmt->bind_param('i', $userId);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  
+  if ($result && $result->num_rows > 0) {
+    $u = $result->fetch_assoc();
+    $stmt->close();
+    
+    // Convertir BLOB a base64
+    $profileImageBase64 = null;
+    if ($u['profile_image_url'] !== null) {
+      $profileImageBase64 = base64_encode($u['profile_image_url']);
+    }
+    
+    $user = [
+      'userId' => (int)$u['user_id'],
+      'nameuser' => $u['nameuser'],
+      'lastnames' => $u['lastnames'],
+      'username' => $u['username'],
+      'email' => $u['email'],
+      'phone' => $u['phone'],
+      'direccion' => $u['direccion'],
+      'profile_image_url' => $profileImageBase64
+    ];
+    
+    respond(['success'=>true,'message'=>'Perfil actualizado exitosamente','user'=>$user]);
+  } else {
+    $stmt->close();
+    respond(['success'=>true,'message'=>'Perfil actualizado exitosamente']);
+  }
+  
+} catch (Throwable $e) {
+  // Handle duplicate key
+  if (isset($conn) && isset($conn->errno) && $conn->errno === 1062) {
+    $msg = strpos($conn->error, 'username') !== false ? 'El alias ya está en uso' : (strpos($conn->error, 'email') !== false ? 'El correo ya está registrado' : 'Duplicado');
+    respond(['success'=>false,'message'=>$msg]);
+  }
+  respond(['success'=>false,'message'=>'Error interno']);
+}
+?>

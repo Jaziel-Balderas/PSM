@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="8dp"
+    android:backgroundTint="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Icono -->
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/borrador"
+            android:layout_marginBottom="16dp"
+            app:tint="#6200EA"/>
+
+        <!-- Título -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="¿Guardar borrador?"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Mensaje -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tienes cambios sin guardar.\n¿Deseas guardar este contenido como borrador?"
+            android:textSize="15sp"
+            android:textColor="#757575"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Botones -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Botón Guardar -->
+            <Button
+                android:id="@+id/btnSaveDraftDialog"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Guardar"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:backgroundTint="#6200EA"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Botón Descartar -->
+            <Button
+                android:id="@+id/btnDiscardDialog"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Descartar"
+                android:textColor="#6200EA"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:backgroundTint="@android:color/transparent"
+                android:layout_marginBottom="8dp"
+                style="?attr/materialButtonOutlinedStyle"/>
+
+            <!-- Botón Cancelar -->
+            <TextView
+                android:id="@+id/btnCancelDialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancelar"
+                android:textColor="#757575"
+                android:textSize="15sp"
+                android:padding="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -12,12 +12,27 @@ import androidx.core.view.WindowInsetsCompat
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import com.example.psm.R
+import Model.repository.SessionManager
 
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Inicializar SessionManager
+        SessionManager.init(this)
+        
+        // Verificar si hay sesión activa
+        if (SessionManager.isLoggedIn && SessionManager.loadSessionFromCache()) {
+            // Hay sesión activa, ir directamente al Dashboard
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+        
         enableEdgeToEdge()
         // Configura la ventana para pantalla completa
         window.setFlags(

@@ -10,4 +10,5 @@ data class UpdateProfileRequest(
     val direccion: String?,
     val username: String,
     val newPassword: String? = null,
+    val profileImageBase64: String? = null
 )

@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.psm.R
 import com.example.psm.UI.controller.AuthVIewModel
 import Model.repository.UserRepository
+import Model.repository.SessionManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import android.widget.Toast
@@ -25,6 +26,19 @@ class LoginActivity : AppCompatActivity(){
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Inicializar SessionManager
+        SessionManager.init(this)
+        
+        // Verificar si hay sesión activa ANTES de mostrar el login
+        if (SessionManager.isLoggedIn && SessionManager.loadSessionFromCache()) {
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+        
         enableEdgeToEdge()
         setContentView(R.layout.login)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->

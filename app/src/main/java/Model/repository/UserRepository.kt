@@ -54,7 +54,15 @@ class UserRepository {
     }
 
     suspend fun register(request: RegisterRequest): AuthResponse {
-        return authApi.registerUser(request)
+        val response = authApi.registerUser(request)
+        
+        // Si el registro es exitoso y el servidor devuelve el usuario, crear sesión
+        if (response.success && response.user != null) {
+            SessionManager.createSession(response.user)
+            _currentUserProfile.postValue(response.user)
+        }
+        
+        return response
     }
 
     suspend fun updateProfile(request: UpdateProfileRequest): AuthResponse {
