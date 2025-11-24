@@ -4,6 +4,7 @@ import Model.dao.PostApi
 import Model.data.VoteResponse
 import Model.data.PostResponse
 import Model.data.PostsResponse
+import Model.data.FavoriteResponse
 import di.AppModule
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -150,6 +151,119 @@ class PostRepository {
             val errorMsg = "Error de red: ${e.message}"
             Log.e("PostRepository", errorMsg, e)
             PostsResponse(false, emptyList(), 0, limit, offset, errorMsg)
+        }
+    }
+    
+    suspend fun toggleFavorite(postId: Int, userId: Int): FavoriteResponse? {
+        return try {
+            Log.d("PostRepository", "toggleFavorite: postId=$postId, userId=$userId")
+            val response = api.toggleFavorite(postId, userId)
+            
+            if (response.isSuccessful) {
+                val body = response.body()
+                Log.d("PostRepository", "Favorite toggled: isFavorite=${body?.isFavorite}")
+                body
+            } else {
+                Log.e("PostRepository", "Error: ${response.code()}")
+                FavoriteResponse(false, "Error: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Exception", e)
+            FavoriteResponse(false, "Error de red: ${e.message}")
+        }
+    }
+    
+    suspend fun getFavorites(userId: Int, query: String = "", orderBy: String = "date", limit: Int = 50, offset: Int = 0): PostsResponse? {
+        return try {
+            Log.d("PostRepository", "getFavorites: userId=$userId, query='$query', orderBy=$orderBy")
+            val response = api.getFavorites(userId, query, orderBy, limit, offset)
+            
+            if (response.isSuccessful) {
+                val body = response.body()
+                Log.d("PostRepository", "Favorites: ${body?.posts?.size} posts")
+                body
+            } else {
+                Log.e("PostRepository", "Error: ${response.code()}")
+                PostsResponse(false, emptyList(), 0, limit, offset, "Error: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Exception", e)
+            PostsResponse(false, emptyList(), 0, limit, offset, "Error de red: ${e.message}")
+        }
+    }
+    
+    suspend fun updatePost(
+        postId: Int,
+        userId: Int,
+        title: String,
+        content: String,
+        location: String,
+        isPublic: Boolean
+    ): PostResponse? {
+        return try {
+            Log.d("PostRepository", "updatePost: postId=$postId, userId=$userId, title='$title', content='$content'")
+            
+            val isPublicInt = if (isPublic) 1 else 0
+            
+            val response = api.updatePost(
+                postId,
+                userId,
+                title,
+                content,
+                location,
+                isPublicInt
+            )
+            
+            if (response.isSuccessful) {
+                val body = response.body()
+                Log.d("PostRepository", "Post updated: ${body?.message}")
+                body
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("PostRepository", "Error ${response.code()}: $errorBody")
+                PostResponse(false, "Error: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Exception", e)
+            PostResponse(false, "Error de red: ${e.message}")
+        }
+    }
+    
+    suspend fun deletePost(postId: Int, userId: Int): PostResponse? {
+        return try {
+            Log.d("PostRepository", "deletePost: postId=$postId, userId=$userId")
+            val response = api.deletePost(postId, userId)
+            
+            if (response.isSuccessful) {
+                val body = response.body()
+                Log.d("PostRepository", "Post deleted: ${body?.message}")
+                body
+            } else {
+                Log.e("PostRepository", "Error: ${response.code()}")
+                PostResponse(false, "Error: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Exception", e)
+            PostResponse(false, "Error de red: ${e.message}")
+        }
+    }
+    
+    suspend fun getUserPosts(userId: String, limit: Int = 100, offset: Int = 0): PostsResponse {
+        return try {
+            Log.d("PostRepository", "getUserPosts: userId=$userId, limit=$limit, offset=$offset")
+            val response = api.getUserPosts(userId, limit, offset)
+            
+            if (response.isSuccessful) {
+                val body = response.body()
+                Log.d("PostRepository", "User posts loaded: ${body?.posts?.size} posts")
+                body ?: PostsResponse(false, emptyList(), 0, limit, offset, "Empty response")
+            } else {
+                Log.e("PostRepository", "Error: ${response.code()}")
+                PostsResponse(false, emptyList(), 0, limit, offset, "Error: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            Log.e("PostRepository", "Exception loading user posts", e)
+            PostsResponse(false, emptyList(), 0, limit, offset, "Error de red: ${e.message}")
         }
     }
 }

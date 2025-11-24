@@ -1,8 +1,10 @@
 <?php
-header('Content-Type: application/json');
+ob_start();
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
 require_once 'DBConnection.php';
 
-function respond($arr) { echo json_encode($arr); exit(); }
+function respond($arr) { ob_end_clean(); echo json_encode($arr); exit(); }
 
 $postId = isset($_GET['post_id']) ? (int)$_GET['post_id'] : 0;
 $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;

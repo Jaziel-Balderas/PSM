@@ -1,8 +1,19 @@
 <?php
-header('Content-Type: application/json');
+// Evitar cualquier salida antes del JSON
+ob_start();
+
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header('Access-Control-Allow-Headers: Content-Type');
+
 require_once 'DBConnection.php';
 
-function respond($arr) { echo json_encode($arr); exit(); }
+function respond($arr) { 
+    ob_end_clean();
+    echo json_encode($arr); 
+    exit(); 
+}
 
 // Accept params via GET or JSON body
 $raw = file_get_contents('php://input');
@@ -21,7 +32,7 @@ if ($offset < 0) $offset = 0;
 
 $conn = DBConnection::getInstance()->getConnection();
 
-// Get posts with user vote information, comments count, and user profile
+// Get posts with user vote information, comments count, favorites status, and user profile
 $sql = 'SELECT 
     p.post_id,
     p.user_id,
@@ -34,6 +45,7 @@ $sql = 'SELECT
     p.created_at,
     COALESCE(v.vote, 0) AS user_vote,
     (SELECT COUNT(*) FROM post_comments WHERE post_id = p.post_id) AS comments_count,
+    (SELECT COUNT(*) FROM post_favorites WHERE post_id = p.post_id AND user_id = ?) AS is_favorite,
     u.username,
     u.nameuser,
     u.lastnames,
@@ -48,7 +60,7 @@ $stmt = $conn->prepare($sql);
 if (!$stmt) {
     respond(['success'=>false,'message'=>'Error preparando consulta: '.$conn->error]);
 }
-$stmt->bind_param('iii', $userId, $limit, $offset);
+$stmt->bind_param('iiii', $userId, $userId, $limit, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
 $posts = [];
@@ -91,20 +103,24 @@ foreach ($posts as &$p) {
     $p['commentsCount'] = (int)($p['comments_count'] ?? 0);
     $p['createdAt'] = $p['created_at'];
     $p['userVote'] = (int)$p['user_vote'] === 0 ? null : (int)$p['user_vote'];
+    $p['isFavorite'] = (int)($p['is_favorite'] ?? 0) > 0;
     $p['images'] = $images;
     
     // Eliminar campos snake_case antiguos
     unset($p['post_id'], $p['user_id'], $p['content'], $p['is_public'], 
           $p['likes_count'], $p['dislikes_count'], $p['created_at'], $p['user_vote'], 
-          $p['comments_count'], $p['profile_image_base64']);
+          $p['comments_count'], $p['profile_image_base64'], $p['is_favorite']);
 }
 if ($imgStmt) $imgStmt->close();
 
-respond([
+// Limpiar buffer y enviar respuesta
+ob_end_clean();
+echo json_encode([
     'success' => true,
     'count' => count($posts),
     'limit' => $limit,
     'offset' => $offset,
     'posts' => $posts
 ]);
+exit;
 ?>

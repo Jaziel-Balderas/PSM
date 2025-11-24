@@ -150,6 +150,12 @@ class dashlayout : Fragment() {
             },
             onCommentClick = { post, position ->
                 handleCommentClick(post, position)
+            },
+            onFavoriteClick = { post, position ->
+                handleFavoriteClick(post, position)
+            },
+            onDeletePost = { post, position ->
+                handleDeletePost(post, position)
             }
         )
         rvPosts.apply {
@@ -239,6 +245,41 @@ class dashlayout : Fragment() {
         startActivity(intent)
     }
     
+    private fun handleFavoriteClick(post: Post, position: Int) {
+        val userIdString = SessionManager.getUserId()
+        if (userIdString == null) {
+            Toast.makeText(requireContext(), "Debes iniciar sesión", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val userId = userIdString.toIntOrNull()
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Error: ID de usuario inválido", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val postId = post.postId?.toIntOrNull()
+        if (postId == null) {
+            Toast.makeText(requireContext(), "Error al procesar la publicación", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        lifecycleScope.launch {
+            try {
+                val response = repository.toggleFavorite(postId, userId)
+                if (response != null && response.success) {
+                    postsAdapter.updatePostFavorite(position, response.isFavorite)
+                    val message = if (response.isFavorite) "Agregado a favoritos" else "Eliminado de favoritos"
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), response?.message ?: "Error al guardar", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error de conexión: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    
     private fun loadPosts() {
         if (!swipeRefresh.isRefreshing) {
             progressBar.visibility = View.VISIBLE
@@ -295,5 +336,45 @@ class dashlayout : Fragment() {
         super.onResume()
         // Recargar posts cuando se vuelve al fragment
         loadPosts()
+    }
+    
+    private fun handleDeletePost(post: Post, position: Int) {
+        val userIdString = SessionManager.getUserId()
+        if (userIdString == null) {
+            Toast.makeText(requireContext(), "Debes iniciar sesión", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val userId = userIdString.toIntOrNull()
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Error: ID de usuario inválido", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val postId = post.postId?.toIntOrNull()
+        if (postId == null) {
+            Toast.makeText(requireContext(), "Error al procesar la publicación", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        lifecycleScope.launch {
+            try {
+                val response = repository.deletePost(postId, userId)
+                
+                if (response != null && response.success) {
+                    Toast.makeText(requireContext(), "Publicación eliminada", Toast.LENGTH_SHORT).show()
+                    postsAdapter.removePost(position)
+                } else {
+                    Toast.makeText(
+                        requireContext(), 
+                        response?.message ?: "Error al eliminar", 
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Log.e("dashlayout", "Error deleting post", e)
+                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

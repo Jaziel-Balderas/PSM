@@ -1,5 +1,6 @@
 package com.example.psm.UI.controller
 
+import Model.data.Post
 import Model.repository.PostRepository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -18,6 +19,9 @@ class PostViewModel(private val repository: PostRepository) : ViewModel() {
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
+    
+    private val _userPosts = MutableLiveData<List<Post>>()
+    val userPosts: LiveData<List<Post>> = _userPosts
 
     fun createPost(
         userId: String,
@@ -54,5 +58,73 @@ class PostViewModel(private val repository: PostRepository) : ViewModel() {
     fun resetStatus() {
         _postStatus.value = false
         _errorMessage.value = ""
+    }
+    
+    fun updatePost(
+        postId: Int,
+        userId: Int,
+        title: String,
+        content: String,
+        location: String,
+        isPublic: Boolean
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            
+            val response = repository.updatePost(
+                postId,
+                userId,
+                title,
+                content,
+                location,
+                isPublic
+            )
+            
+            _isLoading.value = false
+            
+            if (response != null && response.success) {
+                _postStatus.value = true
+                _errorMessage.value = "Publicación actualizada exitosamente"
+            } else {
+                _postStatus.value = false
+                _errorMessage.value = response?.message ?: "Error al actualizar publicación"
+            }
+        }
+    }
+    
+    fun deletePost(postId: Int, userId: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            
+            val response = repository.deletePost(postId, userId)
+            
+            _isLoading.value = false
+            
+            if (response != null && response.success) {
+                _postStatus.value = true
+                _errorMessage.value = "Publicación eliminada exitosamente"
+            } else {
+                _postStatus.value = false
+                _errorMessage.value = response?.message ?: "Error al eliminar publicación"
+            }
+        }
+    }
+    
+    fun loadUserPosts(userId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            
+            val response = repository.getUserPosts(userId)
+            
+            _isLoading.value = false
+            
+            if (response.success && response.posts.isNotEmpty()) {
+                _userPosts.value = response.posts
+                _errorMessage.value = ""
+            } else {
+                _userPosts.value = emptyList()
+                _errorMessage.value = response.message
+            }
+        }
     }
 }

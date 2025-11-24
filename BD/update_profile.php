@@ -1,18 +1,23 @@
 <?php
+ob_start();
 header('Content-Type: application/json');
 require_once 'DBConnection.php';
 
-function respond($arr){ echo json_encode($arr); exit(); }
+function respond($arr){ 
+  ob_end_clean();
+  echo json_encode($arr); 
+  exit(); 
+}
 
 $raw = file_get_contents('php://input');
 $json = json_decode($raw, true);
 $isJson = is_array($json);
 $data = $isJson ? $json : $_POST;
 
-$userId = isset($data['user_id']) ? (int)$data['user_id'] : 0;
+$userId = isset($data['userId']) ? (int)$data['userId'] : 0;
 
 if ($userId <= 0) {
-  respond(['success'=>false,'message'=>'user_id requerido']);
+  respond(['success'=>false,'message'=>'userId requerido']);
 }
 
 // Optional fields to update
@@ -22,6 +27,8 @@ $username = isset($data['username']) ? trim((string)$data['username']) : null;
 $email = isset($data['email']) ? trim((string)$data['email']) : null;
 $phone = isset($data['phone']) ? trim((string)$data['phone']) : null;
 $direccion = isset($data['direccion']) ? trim((string)$data['direccion']) : null;
+$newPassword = isset($data['newPassword']) ? trim((string)$data['newPassword']) : null;
+$profileImageBase64 = isset($data['profileImageBase64']) ? $data['profileImageBase64'] : null;
 
 // Build dynamic update
 $updates = [];
@@ -70,6 +77,27 @@ if ($direccion !== null) {
   $values[] = $direccion;
 }
 
+// Manejar contraseña si se proporciona
+if ($newPassword !== null && $newPassword !== '') {
+  if (strlen($newPassword) < 8) {
+    respond(['success'=>false,'message'=>'La contraseña debe tener al menos 8 caracteres']);
+  }
+  $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+  $updates[] = 'password = ?';
+  $types .= 's';
+  $values[] = $hashedPassword;
+}
+
+// Manejar imagen de perfil si se proporciona
+if ($profileImageBase64 !== null && $profileImageBase64 !== '') {
+  $imageData = base64_decode($profileImageBase64);
+  if ($imageData !== false && strlen($imageData) > 0) {
+    $updates[] = 'profile_image_url = ?';
+    $types .= 's';
+    $values[] = $imageData;
+  }
+}
+
 if (empty($updates)) {
   respond(['success'=>false,'message'=>'No hay campos para actualizar']);
 }
@@ -112,11 +140,43 @@ try {
   $affected = $stmt->affected_rows;
   $stmt->close();
 
-  if (!$ok || $affected <= 0) {
+  if (!$ok) {
     respond(['success'=>false,'message'=>'No se pudo actualizar el perfil']);
   }
 
-  respond(['success'=>true,'message'=>'Perfil actualizado exitosamente']);
+  // Obtener los datos actualizados del usuario
+  $stmt = $conn->prepare('SELECT user_id, nameuser, lastnames, username, email, password, phone, direccion, profile_image_url FROM users WHERE user_id = ? LIMIT 1');
+  $stmt->bind_param('i', $userId);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  
+  if ($result && $result->num_rows > 0) {
+    $u = $result->fetch_assoc();
+    $stmt->close();
+    
+    // Convertir BLOB a base64
+    $profileImageBase64 = null;
+    if ($u['profile_image_url'] !== null) {
+      $profileImageBase64 = base64_encode($u['profile_image_url']);
+    }
+    
+    $user = [
+      'userId' => (int)$u['user_id'],
+      'nameuser' => $u['nameuser'],
+      'lastnames' => $u['lastnames'],
+      'username' => $u['username'],
+      'email' => $u['email'],
+      'phone' => $u['phone'],
+      'direccion' => $u['direccion'],
+      'profile_image_url' => $profileImageBase64
+    ];
+    
+    respond(['success'=>true,'message'=>'Perfil actualizado exitosamente','user'=>$user]);
+  } else {
+    $stmt->close();
+    respond(['success'=>true,'message'=>'Perfil actualizado exitosamente']);
+  }
+  
 } catch (Throwable $e) {
   // Handle duplicate key
   if (isset($conn) && isset($conn->errno) && $conn->errno === 1062) {

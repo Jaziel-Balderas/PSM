@@ -1,5 +1,7 @@
 package com.example.psm.UI.adapter
 
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,11 +11,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.psm.R
+import com.example.psm.UI.Activity.EditPostActivity
 import Model.data.Post
+import Model.repository.SessionManager
 import de.hdodenhof.circleimageview.CircleImageView
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -24,7 +29,9 @@ class PostsAdapter(
     private val posts: MutableList<Post>,
     private val onLikeClick: (Post, Int) -> Unit,
     private val onDislikeClick: (Post, Int) -> Unit,
-    private val onCommentClick: (Post, Int) -> Unit
+    private val onCommentClick: (Post, Int) -> Unit,
+    private val onFavoriteClick: (Post, Int) -> Unit,
+    private val onDeletePost: (Post, Int) -> Unit
 ) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>() {
 
     class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -39,9 +46,11 @@ class PostsAdapter(
         val tvDislikeCount: TextView = view.findViewById(R.id.tvDislikeCount)
         val btnComment: ImageButton = view.findViewById(R.id.btnComment)
         val tvCommentCount: TextView = view.findViewById(R.id.tvCommentCount)
+        val btnFavorite: ImageButton = view.findViewById(R.id.btnFavorite)
         val btnShare: ImageButton = view.findViewById(R.id.btnShare)
         val tvTitle: TextView = view.findViewById(R.id.tvTitle)
         val tvDescription: TextView = view.findViewById(R.id.tvDescription)
+        val btnPostOptions: ImageButton = view.findViewById(R.id.btnPostOptions)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -125,9 +134,27 @@ class PostsAdapter(
             onCommentClick(post, position)
         }
         
+        // Favorito
+        updateFavoriteButton(holder.btnFavorite, post.isFavorite)
+        
+        holder.btnFavorite.setOnClickListener {
+            onFavoriteClick(post, position)
+        }
+        
         // Botón compartir
         holder.btnShare.setOnClickListener {
             sharePost(holder.itemView.context, post)
+        }
+        
+        // Botón de opciones (solo visible si es el propietario del post)
+        val currentUserId = SessionManager.getUserId()
+        if (currentUserId != null && currentUserId == post.userId) {
+            holder.btnPostOptions.visibility = View.VISIBLE
+            holder.btnPostOptions.setOnClickListener { view ->
+                showOptionsMenu(view, post, position)
+            }
+        } else {
+            holder.btnPostOptions.visibility = View.GONE
         }
     }
 
@@ -162,6 +189,22 @@ class PostsAdapter(
             button.setImageResource(R.drawable.ic_heart_broken_filled)
         } else {
             button.setImageResource(R.drawable.ic_heart_broken)
+        }
+    }
+    
+    private fun updateFavoriteButton(button: ImageButton, isFavorite: Boolean) {
+        if (isFavorite) {
+            button.setImageResource(R.drawable.ic_bookmark)
+        } else {
+            button.setImageResource(R.drawable.ic_bookmark_border)
+        }
+    }
+    
+    fun updatePostFavorite(position: Int, isFavorite: Boolean) {
+        if (position in posts.indices) {
+            val current = posts[position]
+            posts[position] = current.copy(isFavorite = isFavorite)
+            notifyItemChanged(position)
         }
     }
     
@@ -202,6 +245,53 @@ class PostsAdapter(
             outputFormat.format(date ?: Date())
         } catch (e: Exception) {
             ""
+        }
+    }
+    
+    private fun showOptionsMenu(view: View, post: Post, position: Int) {
+        val popup = PopupMenu(view.context, view)
+        popup.menuInflater.inflate(R.menu.post_options_menu, popup.menu)
+        
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_edit -> {
+                    val intent = Intent(view.context, EditPostActivity::class.java)
+                    intent.putExtra("post_id", post.postId)
+                    intent.putExtra("post_user_id", post.userId)
+                    intent.putExtra("post_title", post.title)
+                    intent.putExtra("post_content", post.description ?: "")
+                    intent.putExtra("post_location", post.location ?: "")
+                    intent.putExtra("post_is_public", post.isPublic)
+                    view.context.startActivity(intent)
+                    true
+                }
+                R.id.action_delete -> {
+                    showDeleteConfirmation(view.context, post, position)
+                    true
+                }
+                else -> false
+            }
+        }
+        
+        popup.show()
+    }
+    
+    private fun showDeleteConfirmation(context: Context, post: Post, position: Int) {
+        AlertDialog.Builder(context)
+            .setTitle("Eliminar publicación")
+            .setMessage("¿Estás seguro de que quieres eliminar esta publicación? Esta acción no se puede deshacer.")
+            .setPositiveButton("Eliminar") { _, _ ->
+                onDeletePost(post, position)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+    
+    fun removePost(position: Int) {
+        if (position in posts.indices) {
+            posts.removeAt(position)
+            notifyItemRemoved(position)
+            notifyItemRangeChanged(position, posts.size)
         }
     }
 }

@@ -17,7 +17,8 @@ data class Post(
     val likesCount: Int = 0,
     val dislikesCount: Int = 0,
     val userVote: Int? = null, // 1 like, -1 dislike, null none
-    val commentsCount: Int = 0
+    val commentsCount: Int = 0,
+    val isFavorite: Boolean = false
 )
 
 data class PostResponse(
@@ -59,4 +60,11 @@ data class VotePostData(
     val likes_count: Int,
     val dislikes_count: Int,
     val user_vote: Int?
+)
+
+data class FavoriteResponse(
+    val success: Boolean,
+    val message: String? = null,
+    val isFavorite: Boolean = false,
+    val postId: Int = 0
 )

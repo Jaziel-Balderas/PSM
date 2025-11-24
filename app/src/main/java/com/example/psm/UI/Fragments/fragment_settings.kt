@@ -14,6 +14,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.psm.R
 import com.example.psm.UI.Activity.DashboardActivity
 import com.example.psm.UI.Activity.MainActivity
+import com.example.psm.UI.Activity.FavoritesActivity
+import com.example.psm.UI.Activity.DraftsActivity
 import Model.repository.SessionManager
 
 class fragment_settings : AppCompatActivity() {
@@ -35,6 +37,20 @@ class fragment_settings : AppCompatActivity() {
         val btnBack = findViewById<ImageButton>(R.id.back_notis)
         btnBack.setOnClickListener {
             val intent = Intent(this, DashboardActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        }
+        
+        val btnGuardado = findViewById<Button>(R.id.btnGuardado)
+        btnGuardado.setOnClickListener {
+            val intent = Intent(this, FavoritesActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        }
+        
+        val btnBorradores = findViewById<Button>(R.id.btnBorradores)
+        btnBorradores.setOnClickListener {
+            val intent = Intent(this, DraftsActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }

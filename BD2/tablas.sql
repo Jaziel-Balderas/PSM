@@ -126,6 +126,24 @@ CREATE TABLE comment_replies (
 CREATE INDEX idx_replies_comment ON comment_replies(comment_id);
 CREATE INDEX idx_replies_user ON comment_replies(user_id);
 
+-- =====================
+-- Tabla: post_favorites
+-- =====================
+DROP TABLE IF EXISTS post_favorites;
+CREATE TABLE post_favorites (
+  favorite_id INT AUTO_INCREMENT PRIMARY KEY,
+  post_id INT NOT NULL,
+  user_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_favorite (post_id, user_id),
+  CONSTRAINT fk_favorites_post FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE,
+  CONSTRAINT fk_favorites_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_favorites_post ON post_favorites(post_id);
+CREATE INDEX idx_favorites_user ON post_favorites(user_id);
+CREATE INDEX idx_favorites_created ON post_favorites(created_at);
+
 SET FOREIGN_KEY_CHECKS=1;
 
 -- =====================

@@ -1,8 +1,10 @@
 <?php
-header('Content-Type: application/json');
+ob_start();
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
 require_once 'DBConnection.php';
 
-function respond($arr) { echo json_encode($arr); exit(); }
+function respond($arr) { ob_end_clean(); echo json_encode($arr); exit(); }
 
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
@@ -18,7 +20,7 @@ if ($identifier === '' || $password === '') {
 try {
   $conn = DBConnection::getInstance()->getConnection();
 
-  $stmt = $conn->prepare('SELECT user_id, nameuser, lastnames, username, email, password, phone, direccion FROM users WHERE username = ? OR email = ? LIMIT 1');
+  $stmt = $conn->prepare('SELECT user_id, nameuser, lastnames, username, email, password, phone, direccion, profile_image_url FROM users WHERE username = ? OR email = ? LIMIT 1');
   if (!$stmt) { respond(['success'=>false,'message'=>'Error preparando consulta']); }
   $stmt->bind_param('ss', $identifier, $identifier);
   $stmt->execute();
@@ -46,6 +48,12 @@ try {
   // Agregar log para debug
   error_log("LOGIN EXITOSO - user_id: " . $u['user_id'] . ", username: " . $u['username']);
   
+  // Convertir la imagen a base64 si existe
+  $profileImageBase64 = null;
+  if (!empty($u['profile_image_url'])) {
+    $profileImageBase64 = base64_encode($u['profile_image_url']);
+  }
+  
   $user = [
     'userId' => (int)$u['user_id'],  // Cambiar a camelCase para Kotlin
     'nameuser' => $u['nameuser'],
@@ -54,7 +62,7 @@ try {
     'email' => $u['email'],
     'phone' => $u['phone'] ?? '',
     'direccion' => $u['direccion'] ?? '',
-    'profile_image_url' => null  // Agregar campo faltante
+    'profile_image_url' => $profileImageBase64  // Enviar base64 de la imagen
   ];
 
   error_log("USER DATA ENVIADO: " . json_encode($user));

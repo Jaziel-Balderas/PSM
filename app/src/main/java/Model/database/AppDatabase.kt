@@ -6,13 +6,20 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [PostEntity::class, PendingActionEntity::class],
-    version = 1,
+    entities = [
+        PostEntity::class, 
+        PendingActionEntity::class,
+        DraftPostEntity::class,
+        PendingPostEditEntity::class
+    ],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun postDao(): PostDao
+    abstract fun postDao(): Model.dao.PostDao
     abstract fun pendingActionDao(): PendingActionDao
+    abstract fun draftPostDao(): Model.dao.DraftPostDao
+    abstract fun pendingPostEditDao(): Model.dao.PendingPostEditDao
     
     companion object {
         @Volatile

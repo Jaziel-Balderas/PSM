@@ -1,11 +1,14 @@
 <?php
-header('Content-Type: application/json');
+ob_start();
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
 require_once 'DBConnection.php';
 
-function respond($arr) { echo json_encode($arr); exit(); }
+function respond($arr) { ob_end_clean(); echo json_encode($arr); exit(); }
 
 $userId = isset($_GET['userId']) ? (int)$_GET['userId'] : 0;
 $query = isset($_GET['query']) ? trim($_GET['query']) : '';
+$orderBy = isset($_GET['orderBy']) ? trim($_GET['orderBy']) : 'date'; // date, title, username
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
 $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
 
@@ -13,16 +16,25 @@ if ($userId <= 0) {
     respond(['success' => false, 'message' => 'userId es requerido']);
 }
 
-if ($query === '') {
-    respond(['success' => false, 'message' => 'query es requerido']);
-}
-
 try {
     $conn = DBConnection::getInstance()->getConnection();
     
-    // Búsqueda por título, contenido (descripción) o nombre de usuario
-    $searchParam = "%{$query}%";
+    // Determinar el ORDER BY según el parámetro
+    $orderClause = 'f.created_at DESC'; // Por defecto ordenar por fecha de favorito
+    switch ($orderBy) {
+        case 'title':
+            $orderClause = 'p.title ASC';
+            break;
+        case 'username':
+            $orderClause = 'u.username ASC';
+            break;
+        case 'date':
+        default:
+            $orderClause = 'f.created_at DESC';
+            break;
+    }
     
+    // Construir la consulta base
     $sql = 'SELECT 
         p.post_id,
         p.user_id,
@@ -43,28 +55,46 @@ try {
         (SELECT COUNT(*) FROM post_votes WHERE post_id = p.post_id AND vote = -1) AS dislikes_count,
         (SELECT COUNT(*) FROM post_comments WHERE post_id = p.post_id) AS comments_count,
         (SELECT vote FROM post_votes WHERE post_id = p.post_id AND user_id = ?) AS user_vote,
-        (SELECT COUNT(*) FROM post_favorites WHERE post_id = p.post_id AND user_id = ?) AS is_favorite
-    FROM posts p
+        f.created_at AS favorited_at
+    FROM post_favorites f
+    INNER JOIN posts p ON f.post_id = p.post_id
     LEFT JOIN users u ON p.user_id = u.user_id
-    WHERE p.is_public = 1
-    AND (
-        p.title LIKE ? 
-        OR p.content LIKE ? 
-        OR u.username LIKE ?
-        OR u.nameuser LIKE ?
-        OR CONCAT(u.nameuser, " ", u.lastnames) LIKE ?
-    )
-    ORDER BY p.created_at DESC
-    LIMIT ? OFFSET ?';
+    WHERE f.user_id = ?';
+    
+    // Agregar filtro de búsqueda si existe
+    $params = [$userId, $userId];
+    $types = 'ii';
+    
+    if ($query !== '') {
+        $searchParam = "%{$query}%";
+        $sql .= ' AND (
+            p.title LIKE ? 
+            OR p.content LIKE ? 
+            OR u.username LIKE ?
+            OR u.nameuser LIKE ?
+            OR CONCAT(u.nameuser, " ", u.lastnames) LIKE ?
+        )';
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $types .= 'sssss';
+    }
+    
+    $sql .= " ORDER BY {$orderClause} LIMIT ? OFFSET ?";
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= 'ii';
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         error_log("Error preparando consulta: " . $conn->error);
-        respond(['success' => false, 'message' => 'Error en la búsqueda']);
+        respond(['success' => false, 'message' => 'Error al obtener favoritos']);
     }
     
-    // 2 userId (ii) + 5 searchParam (sssss) + 2 limit/offset (ii) = 9 parámetros
-    $stmt->bind_param('iisssssii', $userId, $userId, $searchParam, $searchParam, $searchParam, $searchParam, $searchParam, $limit, $offset);
+    // Bind dinámico de parámetros
+    $stmt->bind_param($types, ...$params);
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -86,12 +116,12 @@ try {
         }
         $imgStmt->close();
         
-        // Mapear a camelCase para Kotlin (convertir post_id a string, content a description)
+        // Mapear a camelCase
         $post = [
             'postId' => (string)$row['post_id'],
             'userId' => (string)$row['user_id'],
             'title' => $row['title'] ?? '',
-            'description' => $row['content'] ?? '',  // Mapear content -> description
+            'description' => $row['content'] ?? '',
             'location' => $row['location'],
             'isPublic' => (bool)$row['is_public'],
             'createdAt' => $row['created_at'],
@@ -104,7 +134,8 @@ try {
             'dislikesCount' => (int)$row['dislikes_count'],
             'commentsCount' => (int)$row['comments_count'],
             'userVote' => $row['user_vote'] !== null ? (int)$row['user_vote'] : null,
-            'isFavorite' => (int)($row['is_favorite'] ?? 0) > 0,
+            'isFavorite' => true, // Siempre true porque vienen de favoritos
+            'favoritedAt' => $row['favorited_at'],
             'images' => $images
         ];
         $posts[] = $post;
@@ -112,17 +143,18 @@ try {
     
     $stmt->close();
     
-    error_log("search_posts.php: Búsqueda '$query' encontró " . count($posts) . " resultados");
+    error_log("get_favorites.php: Usuario $userId tiene " . count($posts) . " favoritos (query='$query', orderBy='$orderBy')");
     
     respond([
         'success' => true,
         'count' => count($posts),
         'posts' => $posts,
+        'orderBy' => $orderBy,
         'query' => $query
     ]);
     
 } catch (Throwable $e) {
-    error_log("Error en search_posts.php: " . $e->getMessage());
-    respond(['success' => false, 'message' => 'Error en la búsqueda']);
+    error_log("Error en get_favorites.php: " . $e->getMessage());
+    respond(['success' => false, 'message' => 'Error al obtener favoritos']);
 }
 ?>

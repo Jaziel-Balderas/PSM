@@ -1,28 +1,27 @@
 <?php
-header('Content-Type: application/json');
+ob_start();
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
 require_once 'DBConnection.php';
 
-function respond($arr) { echo json_encode($arr); exit(); }
-
-$userId = isset($_GET['userId']) ? (int)$_GET['userId'] : 0;
-$query = isset($_GET['query']) ? trim($_GET['query']) : '';
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
-$offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
-
-if ($userId <= 0) {
-    respond(['success' => false, 'message' => 'userId es requerido']);
+function respond($arr) { 
+    ob_end_clean(); 
+    echo json_encode($arr); 
+    exit(); 
 }
 
-if ($query === '') {
-    respond(['success' => false, 'message' => 'query es requerido']);
+$userId = isset($_GET['user_id']) ? trim($_GET['user_id']) : '';
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
+$offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+
+if ($userId === '') {
+    respond(['success' => false, 'message' => 'user_id es requerido']);
 }
 
 try {
     $conn = DBConnection::getInstance()->getConnection();
     
-    // Búsqueda por título, contenido (descripción) o nombre de usuario
-    $searchParam = "%{$query}%";
-    
+    // Consulta para obtener posts del usuario específico
     $sql = 'SELECT 
         p.post_id,
         p.user_id,
@@ -43,28 +42,20 @@ try {
         (SELECT COUNT(*) FROM post_votes WHERE post_id = p.post_id AND vote = -1) AS dislikes_count,
         (SELECT COUNT(*) FROM post_comments WHERE post_id = p.post_id) AS comments_count,
         (SELECT vote FROM post_votes WHERE post_id = p.post_id AND user_id = ?) AS user_vote,
-        (SELECT COUNT(*) FROM post_favorites WHERE post_id = p.post_id AND user_id = ?) AS is_favorite
+        (SELECT COUNT(*) > 0 FROM post_favorites WHERE post_id = p.post_id AND user_id = ?) AS is_favorite
     FROM posts p
     LEFT JOIN users u ON p.user_id = u.user_id
-    WHERE p.is_public = 1
-    AND (
-        p.title LIKE ? 
-        OR p.content LIKE ? 
-        OR u.username LIKE ?
-        OR u.nameuser LIKE ?
-        OR CONCAT(u.nameuser, " ", u.lastnames) LIKE ?
-    )
+    WHERE p.user_id = ?
     ORDER BY p.created_at DESC
     LIMIT ? OFFSET ?';
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         error_log("Error preparando consulta: " . $conn->error);
-        respond(['success' => false, 'message' => 'Error en la búsqueda']);
+        respond(['success' => false, 'message' => 'Error al obtener publicaciones']);
     }
     
-    // 2 userId (ii) + 5 searchParam (sssss) + 2 limit/offset (ii) = 9 parámetros
-    $stmt->bind_param('iisssssii', $userId, $userId, $searchParam, $searchParam, $searchParam, $searchParam, $searchParam, $limit, $offset);
+    $stmt->bind_param('sssii', $userId, $userId, $userId, $limit, $offset);
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -86,12 +77,12 @@ try {
         }
         $imgStmt->close();
         
-        // Mapear a camelCase para Kotlin (convertir post_id a string, content a description)
+        // Mapear a camelCase para Kotlin
         $post = [
             'postId' => (string)$row['post_id'],
             'userId' => (string)$row['user_id'],
             'title' => $row['title'] ?? '',
-            'description' => $row['content'] ?? '',  // Mapear content -> description
+            'description' => $row['content'] ?? '',
             'location' => $row['location'],
             'isPublic' => (bool)$row['is_public'],
             'createdAt' => $row['created_at'],
@@ -104,7 +95,7 @@ try {
             'dislikesCount' => (int)$row['dislikes_count'],
             'commentsCount' => (int)$row['comments_count'],
             'userVote' => $row['user_vote'] !== null ? (int)$row['user_vote'] : null,
-            'isFavorite' => (int)($row['is_favorite'] ?? 0) > 0,
+            'isFavorite' => (bool)$row['is_favorite'],
             'images' => $images
         ];
         $posts[] = $post;
@@ -112,17 +103,16 @@ try {
     
     $stmt->close();
     
-    error_log("search_posts.php: Búsqueda '$query' encontró " . count($posts) . " resultados");
+    error_log("get_user_posts.php: Usuario $userId tiene " . count($posts) . " publicaciones");
     
     respond([
         'success' => true,
         'count' => count($posts),
-        'posts' => $posts,
-        'query' => $query
+        'posts' => $posts
     ]);
     
 } catch (Throwable $e) {
-    error_log("Error en search_posts.php: " . $e->getMessage());
-    respond(['success' => false, 'message' => 'Error en la búsqueda']);
+    error_log("Error en get_user_posts.php: " . $e->getMessage());
+    respond(['success' => false, 'message' => 'Error al obtener publicaciones']);
 }
 ?>

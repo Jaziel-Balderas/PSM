@@ -12,7 +12,7 @@ class DraftManager private constructor(context: Context) :
 
     companion object {
         private const val DATABASE_NAME = "drafts.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
 
         private const val TABLE_DRAFTS = "drafts"
         private const val COLUMN_ID = "id"
@@ -20,6 +20,7 @@ class DraftManager private constructor(context: Context) :
         private const val COLUMN_TITLE = "title"
         private const val COLUMN_CONTENT = "content"
         private const val COLUMN_IMAGE_BASE64 = "image_base64"
+        private const val COLUMN_IMAGE_URIS = "image_uris"
         private const val COLUMN_LOCATION = "location"
         private const val COLUMN_IS_PUBLIC = "is_public"
         private const val COLUMN_CREATED_AT = "created_at"
@@ -54,6 +55,7 @@ class DraftManager private constructor(context: Context) :
                 $COLUMN_TITLE TEXT,
                 $COLUMN_CONTENT TEXT,
                 $COLUMN_IMAGE_BASE64 TEXT,
+                $COLUMN_IMAGE_URIS TEXT,
                 $COLUMN_LOCATION TEXT,
                 $COLUMN_IS_PUBLIC INTEGER DEFAULT 1,
                 $COLUMN_CREATED_AT INTEGER NOT NULL,
@@ -66,8 +68,9 @@ class DraftManager private constructor(context: Context) :
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_DRAFTS")
-        onCreate(db)
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE $TABLE_DRAFTS ADD COLUMN $COLUMN_IMAGE_URIS TEXT")
+        }
     }
 
     /**
@@ -80,6 +83,7 @@ class DraftManager private constructor(context: Context) :
             put(COLUMN_TITLE, draft.title)
             put(COLUMN_CONTENT, draft.content)
             put(COLUMN_IMAGE_BASE64, draft.imageBase64)
+            put(COLUMN_IMAGE_URIS, draft.imageUris)
             put(COLUMN_LOCATION, draft.location)
             put(COLUMN_IS_PUBLIC, if (draft.isPublic) 1 else 0)
             put(COLUMN_CREATED_AT, draft.createdAt)
@@ -126,6 +130,7 @@ class DraftManager private constructor(context: Context) :
                 title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE)),
                 content = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CONTENT)),
                 imageBase64 = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IMAGE_BASE64)),
+                imageUris = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IMAGE_URIS)),
                 location = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION)),
                 isPublic = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_PUBLIC)) == 1,
                 createdAt = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT)),
@@ -162,6 +167,7 @@ class DraftManager private constructor(context: Context) :
                     title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE)),
                     content = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CONTENT)),
                     imageBase64 = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IMAGE_BASE64)),
+                    imageUris = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IMAGE_URIS)),
                     location = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION)),
                     isPublic = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_PUBLIC)) == 1,
                     createdAt = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT)),

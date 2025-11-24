@@ -3,6 +3,7 @@ package com.example.psm.UI.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -22,6 +23,7 @@ import com.example.psm.R
 import com.example.psm.UI.Fragments.publicar
 import Model.data.Draft
 import Model.repository.DraftManager
+import Model.repository.SessionManager
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,10 +38,12 @@ class DraftsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_drafts)
 
-        // Inicializar DraftManager
+        // Inicializar SessionManager y DraftManager
+        SessionManager.init(this)
         DraftManager.init(this)
 
-        userId = getSharedPreferences("UserSession", MODE_PRIVATE).getInt("user_id", -1)
+        // Obtener userId desde SessionManager
+        userId = SessionManager.getUserId()?.toIntOrNull() ?: -1
         
         if (userId == -1) {
             Toast.makeText(this, "Error: Usuario no autenticado", Toast.LENGTH_SHORT).show()
@@ -87,10 +91,14 @@ class DraftsActivity : AppCompatActivity() {
         intent.putExtra("draft_title", draft.title)
         intent.putExtra("draft_content", draft.content)
         intent.putExtra("draft_location", draft.location)
-        intent.putExtra("draft_image", draft.imageBase64)
+        intent.putExtra("draft_image_uris", draft.imageUris)
         intent.putExtra("draft_is_public", draft.isPublic)
         startActivity(intent)
-        finish()
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        loadDrafts() // Recargar borradores al volver a la actividad
     }
 
     private fun deleteDraft(draft: Draft) {
@@ -152,7 +160,21 @@ class DraftsAdapter(
         holder.tvDraftDate.text = getTimeAgo(draft.updatedAt)
 
         // Imagen
-        if (!draft.imageBase64.isNullOrEmpty()) {
+        if (!draft.imageUris.isNullOrEmpty()) {
+            // Mostrar la primera imagen de las URIs
+            try {
+                val firstUri = draft.imageUris.split(",").firstOrNull()
+                if (firstUri != null) {
+                    val uri = Uri.parse(firstUri)
+                    holder.ivDraftImage.setImageURI(uri)
+                } else {
+                    holder.ivDraftImage.setImageResource(R.drawable.olivia)
+                }
+            } catch (e: Exception) {
+                holder.ivDraftImage.setImageResource(R.drawable.olivia)
+            }
+        } else if (!draft.imageBase64.isNullOrEmpty()) {
+            // Compatibilidad con borradores antiguos
             try {
                 val imageBytes = Base64.decode(draft.imageBase64, Base64.DEFAULT)
                 val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)

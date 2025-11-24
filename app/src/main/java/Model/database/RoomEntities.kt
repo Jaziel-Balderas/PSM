@@ -51,7 +51,7 @@ data class PendingActionEntity(
     val id: Long = 0,
     
     @ColumnInfo(name = "action_type")
-    val actionType: String,  // "CREATE_POST", "VOTE_POST", "UPDATE_PROFILE"
+    val actionType: String,  // "CREATE_POST", "VOTE_POST", "UPDATE_PROFILE", "UPDATE_POST"
     
     @ColumnInfo(name = "json_payload")
     val jsonPayload: String,
@@ -64,4 +64,63 @@ data class PendingActionEntity(
     
     @ColumnInfo(name = "status")
     val status: String = "PENDING"  // PENDING, SYNCING, FAILED
+)
+
+@Entity(tableName = "draft_posts")
+data class DraftPostEntity(
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "draft_id")
+    val draftId: Long = 0,
+    
+    @ColumnInfo(name = "user_id")
+    val userId: Int,
+    
+    @ColumnInfo(name = "title")
+    val title: String?,
+    
+    @ColumnInfo(name = "content")
+    val content: String,
+    
+    @ColumnInfo(name = "location")
+    val location: String?,
+    
+    @ColumnInfo(name = "is_public")
+    val isPublic: Int,
+    
+    @ColumnInfo(name = "images_json")
+    val imagesJson: String?,  // JSON array of base64 images
+    
+    @ColumnInfo(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis(),
+    
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: Long = System.currentTimeMillis()
+)
+
+@Entity(tableName = "pending_post_edits")
+data class PendingPostEditEntity(
+    @PrimaryKey
+    @ColumnInfo(name = "post_id")
+    val postId: Int,
+    
+    @ColumnInfo(name = "user_id")
+    val userId: Int,
+    
+    @ColumnInfo(name = "title")
+    val title: String?,
+    
+    @ColumnInfo(name = "content")
+    val content: String,
+    
+    @ColumnInfo(name = "location")
+    val location: String?,
+    
+    @ColumnInfo(name = "is_public")
+    val isPublic: Int,
+    
+    @ColumnInfo(name = "images_json")
+    val imagesJson: String?,
+    
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: Long = System.currentTimeMillis()
 )
