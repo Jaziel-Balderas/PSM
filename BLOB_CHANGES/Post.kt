@@ -7,7 +7,7 @@ data class Post(
     val title: String,
     val description: String,
     val location: String? = null,
-    val imageUrls: List<String> = emptyList(), // Ahora son base64 strings
+    val imageUrls: List<String> = emptyList(), // Base64 strings
     val isPublic: Boolean = true,
     val createdAt: String? = null,
     val profileResId: Int? = null,
@@ -33,5 +33,5 @@ data class UserInfo(
     val nameuser: String,
     val lastnames: String,
     val username: String,
-    val profileImageUrl: String?
+    val profileImageBase64: String?
 )

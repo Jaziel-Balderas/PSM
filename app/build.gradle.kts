@@ -55,11 +55,16 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     // Converter de Gson (Para convertir JSON de la API a tus clases de Kotlin/Data Models)
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // OkHttp (necesario para MultipartBody y RequestBody)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     // Kotlin Coroutines (Para manejar las llamadas a la red de forma asíncrona)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     // Lifecycle components (Para usar ViewModels y LiveData correctamente)
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+    // SwipeRefreshLayout (Para el pull-to-refresh)
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
 }

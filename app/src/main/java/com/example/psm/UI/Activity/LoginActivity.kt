@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.psm.R
 import com.example.psm.UI.controller.AuthVIewModel
 import Model.repository.UserRepository
+import Model.repository.SessionManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +26,9 @@ class LoginActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.login)
+        
+        // Inicializar SessionManager
+        SessionManager.init(this)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
